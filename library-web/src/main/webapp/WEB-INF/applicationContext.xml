@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <import resource="applicationContext-akka.xml" />
+    <import resource="applicationContext-jpa.xml" />
+    <import resource="applicationContext-jackson.xml" />
+
+    <context:annotation-config/>
+
+    <bean id="httpRequestFactory" class="org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory">
+        <property name="bufferRequestBody" value="false"/>
+    </bean>
+
+    <bean id="restTemplate" class="org.springframework.web.client.AsyncRestTemplate">
+        <property name="asyncRequestFactory" ref="httpRequestFactory"/>
+        <property name="messageConverters">
+            <list>
+                <ref bean="jacksonMessageConverter"/>
+            </list>
+        </property>
+    </bean>
+
+
+</beans>

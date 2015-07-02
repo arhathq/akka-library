@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+    <!--Environment name="logPath" type="java.lang.String" value="/home/alexku/tmp/logs" override="false"/-->
+    <Environment name="logPath" type="java.lang.String" override="false"/>
+
+</Context>
