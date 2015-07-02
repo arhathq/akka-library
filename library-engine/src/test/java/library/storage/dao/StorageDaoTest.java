@@ -1,5 +1,6 @@
 package library.storage.dao;
 
+import library.storage.entity.AuthorEntity;
 import library.storage.entity.BookEntity;
 import org.junit.After;
 import org.junit.Before;
@@ -28,41 +29,66 @@ import static org.junit.Assert.assertTrue;
 public class StorageDaoTest {
 
     @Autowired
+    private AuthorDao authorDao;
+
+    @Autowired
     private BookDao bookDao;
 
+    AuthorEntity markTwain, fredHebert;
     BookEntity tomSawer, learnErlang;
 
     @Before
     public void setUp() throws Exception {
 
+        markTwain = new AuthorEntity();
+        markTwain.setFirstName("Mark");
+        markTwain.setLastName("Twain");
+        markTwain = authorDao.save(markTwain);
+
+        assertTrue(markTwain.getId() != null);
+
         tomSawer = new BookEntity();
         tomSawer.setTitle("Tom Sawer");
-        tomSawer.setAuthor("Mark Twaine");
-        bookDao.save(tomSawer);
+        tomSawer.getAuthors().add(markTwain);
+        tomSawer = bookDao.save(tomSawer);
+
+        assertTrue(tomSawer.getId() != null);
+
+        fredHebert = new AuthorEntity();
+        fredHebert.setFirstName("Fred");
+        fredHebert.setLastName("Hebert");
+        fredHebert = authorDao.save(fredHebert);
 
         learnErlang = new BookEntity();
         learnErlang.setTitle("Learn You Some Erlang For Great Good!");
-        learnErlang.setAuthor("Fred Hebert");
-        bookDao.save(learnErlang);
+        learnErlang.getAuthors().add(fredHebert);
+        learnErlang = bookDao.save(learnErlang);
     }
 
     @After
     public void tearDown() throws Exception {
-        bookDao.deleteAll();
+        bookDao.delete(tomSawer);
+        bookDao.delete(learnErlang);
+        authorDao.delete(markTwain);
+        authorDao.delete(fredHebert);
+
+        assertTrue(bookDao.findAll().isEmpty());
+        assertTrue(authorDao.findAll().isEmpty());
     }
 
     @Test
     public void findBooks() throws Exception {
-        int count = 0;
-        for (Book ignored : bookDao.findAll()) {
-            count++;
-        }
-        assertTrue(count == 2);
+        List<BookEntity> books = bookDao.findAll();
+
+        assertTrue(books.size() == 2);
+        assertTrue(books.contains(tomSawer));
+        assertTrue(books.contains(learnErlang));
     }
 
     @Test
     public void findBook() throws Exception {
-        Book book = bookDao.findOne(1L);
+        Book book = bookDao.findOne(tomSawer.getId());
+
         assertNotNull(book);
         assertEquals(tomSawer, book);
     }
@@ -74,6 +100,9 @@ public class StorageDaoTest {
         ids.add(learnErlang.getId());
 
         List<BookEntity> books = bookDao.findAll(ids);
+
         assertTrue(books.size() == ids.size());
+        assertTrue(books.contains(tomSawer));
+        assertTrue(books.contains(learnErlang));
     }
 }

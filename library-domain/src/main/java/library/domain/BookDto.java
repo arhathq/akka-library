@@ -1,12 +1,15 @@
 package library.domain;
 
+import java.util.Collection;
+
 /**
  * @author Alexander Kuleshov
  */
 public class BookDto implements Book {
+
     private Long id;
     private String title;
-    private String author;
+    private Collection<Author> author;
 
     public BookDto() {
     }
@@ -14,7 +17,7 @@ public class BookDto implements Book {
     public BookDto(Book book) {
         this.id = book.getId();
         this.title = book.getTitle();
-        this.author = book.getAuthor();
+        this.author = book.getAuthors();
     }
 
     @Override
@@ -36,11 +39,11 @@ public class BookDto implements Book {
     }
 
     @Override
-    public String getAuthor() {
+    public Collection<Author> getAuthors() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(Collection<Author> author) {
         this.author = author;
     }
 }

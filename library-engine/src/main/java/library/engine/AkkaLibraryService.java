@@ -12,9 +12,9 @@ import scala.concurrent.ExecutionContext;
 import scala.concurrent.duration.Duration;
 import library.domain.Book;
 import library.domain.BookSearchRequest;
-import library.book.akka.*;
+import library.storage.akka.*;
 import library.core.akka.AkkaService;
-import library.book.akka.message.BookActivityMessage;
+import library.storage.akka.message.BookActivityMessage;
 import library.core.eaa.Event;
 import library.core.eaa.EventMessage;
 

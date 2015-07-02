@@ -3,7 +3,8 @@
     <persistence-unit name="library-data-jpa">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-        <class>library.book.dao.BookEntity</class>
+        <class>library.storage.entity.AuthorEntity</class>
+        <class>library.storage.entity.BookEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

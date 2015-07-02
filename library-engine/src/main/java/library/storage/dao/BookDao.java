@@ -1,5 +1,6 @@
 package library.storage.dao;
 
+import library.storage.entity.BookEntity;
 import org.springframework.data.repository.Repository;
 import library.domain.BookSearchRequest;
 
@@ -19,6 +20,8 @@ public interface BookDao extends Repository<BookEntity, Long> {
     BookEntity findOne(Long id);
 
     BookEntity save(BookEntity book);
+
+    void delete(BookEntity book);
 
     void deleteAll();
 }

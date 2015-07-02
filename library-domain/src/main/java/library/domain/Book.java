@@ -1,6 +1,7 @@
 package library.domain;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * @author Alexander Kuleshov
@@ -11,5 +12,6 @@ public interface Book extends Serializable {
 
     String getTitle();
 
-    String getAuthor();
+    Collection<Author> getAuthors();
+
 }

@@ -3,9 +3,9 @@ package library.storage.entity;
 import library.domain.Author;
 import library.domain.Book;
 import library.core.data.Versioned;
-import library.storage.dao.AbstractEntity;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,11 +14,16 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "Book")
-public class BookEntity extends AbstractEntity implements Book, Versioned {
+public class BookEntity implements Book, Versioned {
 
+    @Id
+    @GeneratedValue
+    private Long id;
     private String title;
 
-    private Set<Author> author;
+    @ManyToMany(targetEntity = AuthorEntity.class, fetch = FetchType.EAGER)
+    @JoinTable(name = "Author_Book", joinColumns = @JoinColumn(name="book_id"), inverseJoinColumns=@JoinColumn(name="author_id"))
+    private Set<Author> authors = new HashSet<>();
 
     @Version
     private int version;
@@ -27,9 +32,18 @@ public class BookEntity extends AbstractEntity implements Book, Versioned {
     }
 
     public BookEntity(Book book) {
-        this.setId(book.getId());
+        this.id = book.getId();
         this.title = book.getTitle();
-        this.author.addAll(book.getAuthors());
+        this.authors.addAll(book.getAuthors());
+    }
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override
@@ -42,13 +56,12 @@ public class BookEntity extends AbstractEntity implements Book, Versioned {
     }
 
     @Override
-    @OneToMany
     public Set<Author> getAuthors() {
-        return author;
+        return authors;
     }
 
-    public void setAuthor(Set<Author> author) {
-        this.author = author;
+    public void setAuthors(Set<Author> authors) {
+        this.authors = authors;
     }
 
     public int getVersion() {
@@ -62,16 +75,16 @@ public class BookEntity extends AbstractEntity implements Book, Versioned {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof BookEntity)) return false;
         BookEntity that = (BookEntity) o;
         return Objects.equals(version, that.version) &&
-                Objects.equals(getId(), that.getId()) &&
+                Objects.equals(id, that.id) &&
                 Objects.equals(title, that.title) &&
-                Objects.equals(author, that.author);
+                Objects.equals(authors, that.authors);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), title, author, version);
+        return Objects.hash(id, title, authors, version);
     }
 }

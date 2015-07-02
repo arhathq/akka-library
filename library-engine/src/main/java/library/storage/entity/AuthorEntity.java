@@ -1,10 +1,8 @@
 package library.storage.entity;
 
 import library.domain.Author;
-import library.storage.dao.AbstractEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 /**
@@ -12,10 +10,22 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "Author")
-public class AuthorEntity extends AbstractEntity implements Author {
+public class AuthorEntity implements Author {
 
+    @Id
+    @GeneratedValue
+    private Long id;
     private String firstName;
     private String lastName;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @Override
     public String getFirstName() {
@@ -40,13 +50,13 @@ public class AuthorEntity extends AbstractEntity implements Author {
         if (this == o) return true;
         if (!(o instanceof AuthorEntity)) return false;
         AuthorEntity that = (AuthorEntity) o;
-        return Objects.equals(getId(), that.getId()) &&
+        return Objects.equals(id, that.id) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), firstName, lastName);
+        return Objects.hash(id, firstName, lastName);
     }
 }

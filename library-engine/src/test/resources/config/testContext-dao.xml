@@ -7,6 +7,6 @@
     <!-- Database setup -->
     <import resource="testContext-data.xml" />
 
-    <jpa:repositories base-package="library.book.dao" />
+    <jpa:repositories base-package="library.storage.dao" />
 
 </beans>

@@ -16,7 +16,7 @@
         <property name="name" value="akka-library"/>
     </bean>
 
-    <bean id="bookSupervisor" class="library.book.akka.actor.BookSupervisor" scope="prototype"/>
+    <bean id="bookSupervisor" class="library.storage.akka.actor.BookSupervisor" scope="prototype"/>
 
-    <bean id="bookActor" class="library.book.akka.actor.BookActor" scope="prototype"/>
+    <bean id="bookActor" class="library.storage.akka.actor.BookActor" scope="prototype"/>
 </beans>

@@ -1,5 +1,6 @@
 package library.storage.dao;
 
+import library.storage.entity.BookEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import library.domain.BookSearchRequest;
@@ -9,7 +10,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,8 +39,6 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public List<BookEntity> findAll(BookSearchRequest request) {
-        ArrayList<BookEntity> books = new ArrayList<>();
-
         return em.createQuery("Select b from BookEntity b", BookEntity.class).getResultList();
     }
 
@@ -49,19 +47,23 @@ public class BookDaoImpl implements BookDao {
         return em.find(BookEntity.class, id);
     }
 
-    @Transactional(readOnly = false)
     @Override
+    @Transactional(readOnly = false)
     public BookEntity save(BookEntity book) {
-        if (book.isNew()) {
-            em.persist(book);
-            return book;
-        }
         return em.merge(book);
     }
 
-    @Transactional(readOnly = false)
     @Override
+    @Transactional(readOnly = false)
+    public void delete(BookEntity detached) {
+        BookEntity persisted = em.merge(detached);
+        em.remove(persisted);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void deleteAll() {
-        em.createQuery("Delete from BookEntity").executeUpdate();
+        em.createNativeQuery("Delete from Author_Book").executeUpdate();
+        em.createNativeQuery("Delete from Book").executeUpdate();
     }
 }

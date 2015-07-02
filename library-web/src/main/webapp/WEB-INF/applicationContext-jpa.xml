@@ -32,6 +32,6 @@
         <jdbc:script execution="INIT" separator="/;" location="classpath:scripts/hsqldb-init.sql"/>
     </jdbc:embedded-database>
 
-    <jpa:repositories base-package="library.book.dao" />
+    <jpa:repositories base-package="library.storage.dao" />
 
 </beans>

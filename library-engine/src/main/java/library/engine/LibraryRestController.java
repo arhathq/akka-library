@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.async.DeferredResult;
 import library.domain.Book;
-import library.domain.BookDto;
 import library.domain.BookSearchRequest;
-import library.book.dao.BookEntity;
 import library.core.web.AbstractRestController;
 
 import java.util.List;
@@ -33,8 +31,8 @@ public class LibraryRestController extends AbstractRestController {
     }
 
     @RequestMapping(value = "/book", method = RequestMethod.POST)
-    public DeferredResult<ResponseEntity<Long>> saveBook(@RequestBody BookDto book) {
-        return objectResult((ListenableFuture<Long>) libraryService.saveBook(new BookEntity(book)));
+    public DeferredResult<ResponseEntity<Long>> saveBook(@RequestBody Book book) {
+        return objectResult((ListenableFuture<Long>) libraryService.saveBook(book));
     }
 
     @RequestMapping(value = "/booksmap", method = RequestMethod.GET)

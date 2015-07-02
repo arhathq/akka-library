@@ -15,8 +15,8 @@ import library.storage.BookException;
 import library.storage.akka.*;
 import library.storage.akka.message.BookActivityMessage;
 import library.storage.akka.message.BookEventMessage;
-import library.book.dao.BookDao;
-import library.book.dao.BookEntity;
+import library.storage.dao.BookDao;
+import library.storage.entity.BookEntity;
 
 import java.util.List;
 
