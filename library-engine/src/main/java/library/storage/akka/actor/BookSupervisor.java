@@ -1,4 +1,4 @@
-package library.book.akka.actor;
+package library.storage.akka.actor;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -6,7 +6,7 @@ import akka.routing.RoundRobinPool;
 import akka.routing.RouterConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import library.core.akka.AkkaService;
-import library.book.akka.message.BookEventMessage;
+import library.storage.akka.message.BookEventMessage;
 import library.core.eaa.EventMessage;
 
 /**

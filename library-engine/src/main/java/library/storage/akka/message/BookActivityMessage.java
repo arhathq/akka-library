@@ -1,4 +1,4 @@
-package library.book.akka.message;
+package library.storage.akka.message;
 
 import library.core.eaa.Activity;
 

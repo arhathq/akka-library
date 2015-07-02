@@ -1,5 +1,6 @@
-package library.book.dao;
+package library.storage.dao;
 
+import library.storage.entity.BookEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -10,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import library.domain.Book;
-import library.book.dao.BookEntity;
-import library.book.dao.BookDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:config/testContext-dao.xml")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class BookDaoJpaTest {
+public class StorageDaoTest {
 
     @Autowired
     private BookDao bookDao;

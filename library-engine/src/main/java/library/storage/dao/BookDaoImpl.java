@@ -1,4 +1,4 @@
-package library.book.dao;
+package library.storage.dao;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package library.book.dao;
+package library.storage.dao;
 
 import org.springframework.data.repository.Repository;
 import library.domain.BookSearchRequest;

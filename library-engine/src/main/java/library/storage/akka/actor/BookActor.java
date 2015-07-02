@@ -1,4 +1,4 @@
-package library.book.akka.actor;
+package library.storage.akka.actor;
 
 import akka.actor.UntypedActor;
 import com.google.common.base.Function;
@@ -10,11 +10,11 @@ import library.domain.BookSearchRequest;
 import library.core.eaa.Action;
 import library.core.eaa.Activity;
 import library.core.eaa.Event;
-import library.book.BookEventType;
-import library.book.BookException;
-import library.book.akka.*;
-import library.book.akka.message.BookActivityMessage;
-import library.book.akka.message.BookEventMessage;
+import library.storage.BookEventType;
+import library.storage.BookException;
+import library.storage.akka.*;
+import library.storage.akka.message.BookActivityMessage;
+import library.storage.akka.message.BookEventMessage;
 import library.book.dao.BookDao;
 import library.book.dao.BookEntity;
 

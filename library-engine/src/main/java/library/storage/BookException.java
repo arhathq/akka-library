@@ -1,4 +1,4 @@
-package library.book;
+package library.storage;
 
 import library.engine.LibraryException;
 

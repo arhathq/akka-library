@@ -1,9 +1,9 @@
-package library.book.akka;
+package library.storage.akka;
 
 import library.domain.Book;
 import library.domain.BookSearchRequest;
 import library.core.eaa.Event;
-import library.book.BookEventType;
+import library.storage.BookEventType;
 import library.core.eaa.EventType;
 
 /**

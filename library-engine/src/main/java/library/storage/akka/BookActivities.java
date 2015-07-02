@@ -1,8 +1,8 @@
-package library.book.akka;
+package library.storage.akka;
 
 import library.domain.Book;
 import library.core.eaa.Activity;
-import library.book.BookActivityType;
+import library.storage.BookActivityType;
 
 import java.util.ArrayList;
 import java.util.List;

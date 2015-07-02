@@ -1,26 +1,24 @@
-package library.book.dao;
+package library.storage.entity;
 
+import library.domain.Author;
 import library.domain.Book;
-import library.core.data.Persistent;
 import library.core.data.Versioned;
+import library.storage.dao.AbstractEntity;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Alexander Kuleshov
  */
 @Entity
 @Table(name = "Book")
-public class BookEntity implements Book, Persistent<Long>, Versioned {
-
-    @Id
-    @GeneratedValue
-    private Long id;
+public class BookEntity extends AbstractEntity implements Book, Versioned {
 
     private String title;
 
-    private String author;
+    private Set<Author> author;
 
     @Version
     private int version;
@@ -29,23 +27,9 @@ public class BookEntity implements Book, Persistent<Long>, Versioned {
     }
 
     public BookEntity(Book book) {
-        this.id = book.getId();
+        this.setId(book.getId());
         this.title = book.getTitle();
-        this.author = book.getAuthor();
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    public boolean isNew() {
-        return null == id;
+        this.author.addAll(book.getAuthors());
     }
 
     @Override
@@ -58,11 +42,12 @@ public class BookEntity implements Book, Persistent<Long>, Versioned {
     }
 
     @Override
-    public String getAuthor() {
+    @OneToMany
+    public Set<Author> getAuthors() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(Set<Author> author) {
         this.author = author;
     }
 
@@ -80,13 +65,13 @@ public class BookEntity implements Book, Persistent<Long>, Versioned {
         if (o == null || getClass() != o.getClass()) return false;
         BookEntity that = (BookEntity) o;
         return Objects.equals(version, that.version) &&
-                Objects.equals(id, that.id) &&
+                Objects.equals(getId(), that.getId()) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(author, that.author);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, author, version);
+        return Objects.hash(getId(), title, author, version);
     }
 }
