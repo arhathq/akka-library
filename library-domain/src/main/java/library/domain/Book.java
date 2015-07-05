@@ -14,4 +14,6 @@ public interface Book extends Serializable {
 
     Collection<Author> getAuthors();
 
+    Publisher getPublisher();
+
 }

@@ -5,6 +5,7 @@
 
         <class>library.storage.entity.AuthorEntity</class>
         <class>library.storage.entity.BookEntity</class>
+        <class>library.storage.entity.PublisherEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

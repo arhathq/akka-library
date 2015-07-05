@@ -54,9 +54,4 @@ public class AuthorDaoImpl implements AuthorDao {
         em.remove(persisted);
     }
 
-    @Override
-    @Transactional(readOnly = false)
-    public void deleteAll() {
-        em.createQuery("Delete from AuthorEntity").executeUpdate();
-    }
 }

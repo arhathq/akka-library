@@ -2,6 +2,7 @@ package library.storage.dao;
 
 import library.storage.entity.AuthorEntity;
 import library.storage.entity.BookEntity;
+import library.storage.entity.PublisherEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -34,11 +35,21 @@ public class StorageDaoTest {
     @Autowired
     private BookDao bookDao;
 
+    @Autowired
+    private PublisherDao publisherDao;
+
     AuthorEntity markTwain, fredHebert;
     BookEntity tomSawer, learnErlang;
+    PublisherEntity oreili;
 
     @Before
     public void setUp() throws Exception {
+
+        oreili = new PublisherEntity();
+        oreili.setName("O'Reili");
+        oreili = publisherDao.save(oreili);
+
+        assertTrue(oreili.getId() != null);
 
         markTwain = new AuthorEntity();
         markTwain.setFirstName("Mark");
@@ -50,6 +61,7 @@ public class StorageDaoTest {
         tomSawer = new BookEntity();
         tomSawer.setTitle("Tom Sawer");
         tomSawer.getAuthors().add(markTwain);
+        tomSawer.setPublisher(oreili);
         tomSawer = bookDao.save(tomSawer);
 
         assertTrue(tomSawer.getId() != null);
@@ -71,9 +83,11 @@ public class StorageDaoTest {
         bookDao.delete(learnErlang);
         authorDao.delete(markTwain);
         authorDao.delete(fredHebert);
+        publisherDao.delete(oreili);
 
         assertTrue(bookDao.findAll().isEmpty());
         assertTrue(authorDao.findAll().isEmpty());
+        assertTrue(publisherDao.findAll().isEmpty());
     }
 
     @Test
@@ -91,6 +105,8 @@ public class StorageDaoTest {
 
         assertNotNull(book);
         assertEquals(tomSawer, book);
+
+        assertEquals(tomSawer.getPublisher(), oreili);
     }
 
     @Test

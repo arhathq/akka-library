@@ -9,7 +9,8 @@ public class BookDto implements Book {
 
     private Long id;
     private String title;
-    private Collection<Author> author;
+    private Collection<Author> authors;
+    private Publisher publisher;
 
     public BookDto() {
     }
@@ -17,7 +18,8 @@ public class BookDto implements Book {
     public BookDto(Book book) {
         this.id = book.getId();
         this.title = book.getTitle();
-        this.author = book.getAuthors();
+        this.authors = book.getAuthors();
+        this.publisher = book.getPublisher();
     }
 
     @Override
@@ -40,10 +42,19 @@ public class BookDto implements Book {
 
     @Override
     public Collection<Author> getAuthors() {
-        return author;
+        return authors;
     }
 
-    public void setAuthor(Collection<Author> author) {
-        this.author = author;
+    public void setAuthors(Collection<Author> author) {
+        this.authors = author;
+    }
+
+    @Override
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 }

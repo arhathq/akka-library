@@ -20,6 +20,4 @@ public interface AuthorDao extends Repository<AuthorEntity, Long> {
 
     void delete(AuthorEntity author);
 
-    void deleteAll();
-
 }

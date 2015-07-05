@@ -3,6 +3,7 @@ package library.storage.entity;
 import library.domain.Author;
 import library.domain.Book;
 import library.core.data.Versioned;
+import library.domain.Publisher;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -25,6 +26,9 @@ public class BookEntity implements Book, Versioned {
     @JoinTable(name = "Author_Book", joinColumns = @JoinColumn(name="book_id"), inverseJoinColumns=@JoinColumn(name="author_id"))
     private Set<Author> authors = new HashSet<>();
 
+    @ManyToOne(cascade = CascadeType.ALL, targetEntity = PublisherEntity.class)
+    private Publisher publisher;
+
     @Version
     private int version;
 
@@ -35,6 +39,9 @@ public class BookEntity implements Book, Versioned {
         this.id = book.getId();
         this.title = book.getTitle();
         this.authors.addAll(book.getAuthors());
+        if (book.getPublisher() != null) {
+            this.publisher = new PublisherEntity(book.getPublisher());
+        }
     }
 
     @Override
@@ -62,6 +69,15 @@ public class BookEntity implements Book, Versioned {
 
     public void setAuthors(Set<Author> authors) {
         this.authors = authors;
+    }
+
+    @Override
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 
     public int getVersion() {
