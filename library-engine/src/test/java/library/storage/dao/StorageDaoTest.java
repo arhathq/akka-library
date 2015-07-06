@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import library.domain.Book;
@@ -74,6 +75,7 @@ public class StorageDaoTest {
         learnErlang = new BookEntity();
         learnErlang.setTitle("Learn You Some Erlang For Great Good!");
         learnErlang.getAuthors().add(fredHebert);
+        learnErlang.setPublisher(oreili);
         learnErlang = bookDao.save(learnErlang);
     }
 
@@ -120,5 +122,35 @@ public class StorageDaoTest {
         assertTrue(books.size() == ids.size());
         assertTrue(books.contains(tomSawer));
         assertTrue(books.contains(learnErlang));
+    }
+
+    @Test
+    public void concurrentUpdateBook() throws Exception {
+        BookEntity aliceBook = bookDao.findOne(tomSawer.getId());
+        int aliceVersion = aliceBook.getVersion();
+
+        BookEntity batchBook = bookDao.findOne(tomSawer.getId());
+        int batchVersion = batchBook.getVersion();
+
+        assertTrue(aliceVersion == batchVersion);
+
+        batchBook.setPublisher(null);
+        batchBook = bookDao.save(batchBook);
+        batchVersion = batchBook.getVersion();
+
+        assertTrue(aliceVersion < batchVersion);
+
+        aliceBook.setTitle("updated title");
+        try {
+            aliceBook = bookDao.save(aliceBook);
+        } catch (OptimisticLockingFailureException e) {
+            BookEntity latestBook = bookDao.findOne(aliceBook.getId());
+            aliceBook = bookDao.save(latestBook.from(aliceBook));
+        }
+        aliceVersion = aliceBook.getVersion();
+
+        assertTrue(aliceVersion > batchVersion);
+
+        tomSawer = bookDao.findOne(tomSawer.getId()); //Update with last modified version
     }
 }

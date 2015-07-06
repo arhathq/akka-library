@@ -26,7 +26,7 @@ public class BookEntity implements Book, Versioned {
     @JoinTable(name = "Author_Book", joinColumns = @JoinColumn(name="book_id"), inverseJoinColumns=@JoinColumn(name="author_id"))
     private Set<Author> authors = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.ALL, targetEntity = PublisherEntity.class)
+    @ManyToOne(cascade = CascadeType.PERSIST, targetEntity = PublisherEntity.class)
     private Publisher publisher;
 
     @Version
@@ -86,6 +86,12 @@ public class BookEntity implements Book, Versioned {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public BookEntity from(Book book) {
+        BookEntity entity = new BookEntity(book);
+        entity.setVersion(version);
+        return entity;
     }
 
     @Override

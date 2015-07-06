@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 /**
  * @author Alexander Kuleshov
@@ -49,19 +50,13 @@ public class PublisherEntity implements Publisher {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PublisherEntity)) return false;
-
         PublisherEntity that = (PublisherEntity) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (!name.equals(that.name)) return false;
-
-        return true;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + name.hashCode();
-        return result;
+        return Objects.hash(id, name);
     }
 }
