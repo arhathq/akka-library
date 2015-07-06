@@ -3,19 +3,16 @@ package library.domain;
 /**
  * @author Alexander Kuleshov
  */
-public class AuthorDto implements Author {
+public final class AuthorDto implements Author {
 
-    private Long id;
-    private String firstName;
-    private String lastName;
-
-    public AuthorDto() {
-    }
+    private final Long id;
+    private final String firstName;
+    private final String lastName;
 
     public AuthorDto(Author author) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.id = author.getId();
+        this.firstName = author.getFirstName();
+        this.lastName = author.getLastName();
     }
 
     @Override
@@ -23,17 +20,9 @@ public class AuthorDto implements Author {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
     public String getFirstName() {
         return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 
     @Override
@@ -41,7 +30,4 @@ public class AuthorDto implements Author {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 }

@@ -2,7 +2,7 @@ package library.storage.akka;
 
 import library.domain.Book;
 import library.core.eaa.Activity;
-import library.storage.BookActivityType;
+import library.storage.StorageActivityType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +28,8 @@ public class BookActivities {
         }
 
         @Override
-        public BookActivityType getActivityType() {
-            return BookActivityType.BOOKS_RETURNED;
+        public StorageActivityType getActivityType() {
+            return StorageActivityType.BOOKS_RETURNED;
         }
 
         @Override
@@ -46,8 +46,8 @@ public class BookActivities {
         }
 
         @Override
-        public BookActivityType getActivityType() {
-            return BookActivityType.BOOK_SAVED;
+        public StorageActivityType getActivityType() {
+            return StorageActivityType.BOOK_SAVED;
         }
 
         @Override

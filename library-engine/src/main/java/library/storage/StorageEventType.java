@@ -5,8 +5,8 @@ import library.core.eaa.EventType;
 /**
  * @author Alexander Kuleshov
  */
-public enum BookEventType implements EventType {
+public enum StorageEventType implements EventType {
 
-    GET_BOOKS, SAVE_BOOK;
+    GET_BOOKS, SAVE_BOOK
 
 }

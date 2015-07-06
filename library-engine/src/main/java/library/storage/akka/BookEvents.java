@@ -3,7 +3,7 @@ package library.storage.akka;
 import library.domain.Book;
 import library.domain.BookSearchRequest;
 import library.core.eaa.Event;
-import library.storage.BookEventType;
+import library.storage.StorageEventType;
 import library.core.eaa.EventType;
 
 /**
@@ -28,7 +28,7 @@ public class BookEvents {
 
         @Override
         public EventType getEventType() {
-            return BookEventType.GET_BOOKS;
+            return StorageEventType.GET_BOOKS;
         }
     }
 
@@ -41,7 +41,7 @@ public class BookEvents {
 
         @Override
         public EventType getEventType() {
-            return BookEventType.SAVE_BOOK;
+            return StorageEventType.SAVE_BOOK;
         }
     }
 }

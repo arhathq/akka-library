@@ -1,5 +1,6 @@
 package library.storage.dao;
 
+import library.domain.Book;
 import library.storage.entity.BookEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +52,21 @@ public class BookDaoImpl implements BookDao {
     @Transactional(readOnly = false)
     public BookEntity save(BookEntity book) {
         return em.merge(book);
+    }
+
+    @Override
+    public BookEntity toEntity(Book book) {
+        if (book.getId() == null) {
+            return new BookEntity(book);
+        }
+
+        BookEntity entity = findOne(book.getId());
+        if (entity == null) {
+            return new BookEntity(book);
+
+        }
+
+        return entity.from(book);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package library.core.eaa;
+package library.engine.message;
 
 import library.core.eaa.Event;
 

@@ -1,14 +1,14 @@
-package library.storage.akka.message;
+package library.engine.message;
 
 import library.core.eaa.Activity;
 
 /**
  * @author Alexander Kuleshov
  */
-public class BookActivityMessage {
+public class ActivityMessage {
     public final Activity activity;
 
-    public BookActivityMessage(final Activity activity) {
+    public ActivityMessage(Activity activity) {
         this.activity = activity;
     }
 }

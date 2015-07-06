@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Actors configuration -->
+
+    <bean id="storageSupervisor" class="library.storage.akka.actor.StorageSupervisor" scope="prototype"/>
+
+    <bean id="storageRouter" class="library.storage.akka.actor.StorageRouter" scope="prototype"/>
+
+    <bean id="bookActor" class="library.storage.akka.actor.BookActor" scope="prototype"/>
+
+</beans>

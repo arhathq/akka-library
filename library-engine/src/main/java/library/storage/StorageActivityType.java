@@ -5,7 +5,7 @@ import library.core.eaa.ActivityType;
 /**
  * @author Alexander Kuleshov
  */
-public enum BookActivityType implements ActivityType {
+public enum StorageActivityType implements ActivityType {
     BOOKS_RETURNED,
     BOOK_SAVED
 }

@@ -10,11 +10,11 @@ import library.domain.BookSearchRequest;
 import library.core.eaa.Action;
 import library.core.eaa.Activity;
 import library.core.eaa.Event;
-import library.storage.BookEventType;
-import library.storage.BookException;
+import library.storage.StorageEventType;
+import library.storage.StorageException;
 import library.storage.akka.*;
-import library.storage.akka.message.BookActivityMessage;
-import library.storage.akka.message.BookEventMessage;
+import library.storage.akka.message.StorageActivityMessage;
+import library.storage.akka.message.StorageEventMessage;
 import library.storage.dao.BookDao;
 import library.storage.entity.BookEntity;
 
@@ -30,29 +30,29 @@ public class BookActor extends UntypedActor {
 
     @Override
     public void onReceive(Object o) throws Exception {
-        if (o instanceof BookEventMessage) {
-            BookEventMessage eventMessage = (BookEventMessage) o;
-            BookActivityMessage activityMessage = performActivityByEventDecision(eventMessage);
+        if (o instanceof StorageEventMessage) {
+            StorageEventMessage eventMessage = (StorageEventMessage) o;
+            StorageActivityMessage activityMessage = performActivityByEventDecision(eventMessage);
             eventMessage.origin.tell(activityMessage, self());
         } else {
             unhandled(o);
         }
     }
 
-    private BookActivityMessage performActivityByEventDecision(BookEventMessage eventMessage) {
+    private StorageActivityMessage performActivityByEventDecision(StorageEventMessage eventMessage) {
         Event event = eventMessage.event;
 
         Action bookAction;
-        if (BookEventType.GET_BOOKS == event.getEventType()) {
+        if (StorageEventType.GET_BOOKS == event.getEventType()) {
             bookAction = new GetBooksAction();
-        } else if (BookEventType.SAVE_BOOK == event.getEventType()) {
+        } else if (StorageEventType.SAVE_BOOK == event.getEventType()) {
             bookAction = new SaveBookAction();
         } else {
-            throw new BookException("Unsupported event type: " + event.getEventType());
+            throw new StorageException("Unsupported event type: " + event.getEventType());
         }
 
         Activity activity = bookAction.perform(event);
-        return new BookActivityMessage(activity);
+        return new StorageActivityMessage(activity);
     }
 
     private class GetBooksAction implements Action {
@@ -82,7 +82,9 @@ public class BookActor extends UntypedActor {
             BookEvents.SaveBook event = (BookEvents.SaveBook) bookEvent;
             Book book = event.book;
 
-            BookEntity persistedBook = bookDao.save(new BookEntity(book));
+            // TODO: Should be performed in transaction context
+            BookEntity persistedBook = bookDao.toEntity(book);
+            persistedBook = bookDao.save(persistedBook);
 
             return BookActivities.createSaveBookActivity(new BookDto(persistedBook));
         }

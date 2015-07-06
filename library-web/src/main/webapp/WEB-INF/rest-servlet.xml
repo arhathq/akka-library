@@ -30,6 +30,6 @@
 
     <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter"/>
 
-    <context:component-scan base-package="library.library"/>
+    <context:component-scan base-package="library"/>
 
 </beans>
