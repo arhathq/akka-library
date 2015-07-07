@@ -1,4 +1,8 @@
-package library.domain;
+package library.domain.dto;
+
+import library.domain.Author;
+import library.domain.Book;
+import library.domain.Publisher;
 
 import java.util.Collection;
 import java.util.HashSet;

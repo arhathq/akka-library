@@ -1,8 +1,7 @@
-package library.storage.akka;
+package library.storage.eaa;
 
+import library.core.eaa.AbstractActivity;
 import library.domain.Book;
-import library.core.eaa.Activity;
-import library.storage.StorageActivityType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class BookActivities {
         return new SaveBookActivity(book);
     }
 
-    private static class GetBooksActivity implements Activity {
+    private static class GetBooksActivity extends AbstractActivity {
         private final List<Book> books;
 
         public GetBooksActivity(List<Book> books) {
@@ -33,12 +32,12 @@ public class BookActivities {
         }
 
         @Override
-        public Object getData() {
+        public Object getPayload() {
             return books;
         }
     }
 
-    private static class SaveBookActivity implements Activity {
+    private static class SaveBookActivity extends AbstractActivity {
         private final Book book;
 
         public SaveBookActivity(Book book) {
@@ -51,7 +50,7 @@ public class BookActivities {
         }
 
         @Override
-        public Object getData() {
+        public Object getPayload() {
             return book;
         }
     }

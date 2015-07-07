@@ -5,6 +5,10 @@ package library.core.eaa;
  */
 public interface Event {
 
+//    String getEventId();
+
+//    String getEventClass();
+
     EventType getEventType();
 
 }

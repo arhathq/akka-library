@@ -22,7 +22,7 @@ public class BookEntity implements Book, Versioned {
     private Long id;
     private String title;
 
-    @ManyToMany(targetEntity = AuthorEntity.class, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST}, targetEntity = AuthorEntity.class, fetch = FetchType.EAGER)
     @JoinTable(name = "Author_Book", joinColumns = @JoinColumn(name="book_id"), inverseJoinColumns=@JoinColumn(name="author_id"))
     private Set<Author> authors = new HashSet<>();
 

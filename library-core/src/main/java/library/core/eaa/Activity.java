@@ -5,8 +5,16 @@ package library.core.eaa;
  */
 public interface Activity {
 
+//    String getActivityId();
+
+//    String getActivityClass();
+
     ActivityType getActivityType();
 
-    Object getData();
+//    String getEventId();
+
+    Object getPayload();
+
+    Throwable getThrowable();
 
 }

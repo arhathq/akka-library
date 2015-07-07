@@ -1,4 +1,4 @@
-package library.storage;
+package library.storage.eaa;
 
 import library.core.eaa.EventType;
 

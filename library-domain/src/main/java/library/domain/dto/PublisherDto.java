@@ -1,4 +1,6 @@
-package library.domain;
+package library.domain.dto;
+
+import library.domain.Publisher;
 
 /**
  * @author Alexander Kuleshov

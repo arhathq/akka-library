@@ -1,5 +1,6 @@
 package library.engine;
 
+import library.domain.pojo.BookPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,7 +32,7 @@ public class LibraryRestController extends AbstractRestController {
     }
 
     @RequestMapping(value = "/book", method = RequestMethod.POST)
-    public DeferredResult<ResponseEntity<Long>> saveBook(@RequestBody Book book) {
+    public DeferredResult<ResponseEntity<Long>> saveBook(@RequestBody BookPojo book) {
         return objectResult((ListenableFuture<Long>) libraryService.saveBook(book));
     }
 

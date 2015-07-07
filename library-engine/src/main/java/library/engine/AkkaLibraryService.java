@@ -6,6 +6,7 @@ import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import library.engine.message.ActivityMessage;
+import library.storage.eaa.BookEvents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.SettableListenableFuture;
@@ -13,7 +14,6 @@ import scala.concurrent.ExecutionContext;
 import scala.concurrent.duration.Duration;
 import library.domain.Book;
 import library.domain.BookSearchRequest;
-import library.storage.akka.*;
 import library.core.akka.AkkaService;
 import library.core.eaa.Event;
 import library.engine.message.EventMessage;
@@ -49,7 +49,7 @@ public class AkkaLibraryService implements LibraryService {
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
                 List<Book> books = new ArrayList<>();
-                books.addAll((Collection<? extends Book>) message.activity.getData());
+                books.addAll((Collection<? extends Book>) message.activity.getPayload());
                 result.set(books);
 
             }
@@ -78,7 +78,7 @@ public class AkkaLibraryService implements LibraryService {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
-                result.set(((Book) message.activity.getData()).getId());
+                result.set(((Book) message.activity.getPayload()).getId());
             }
         }, executionContext);
 

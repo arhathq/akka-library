@@ -1,4 +1,4 @@
-package library.storage;
+package library.storage.eaa;
 
 import library.core.eaa.ActivityType;
 
@@ -7,5 +7,6 @@ import library.core.eaa.ActivityType;
  */
 public enum StorageActivityType implements ActivityType {
     BOOKS_RETURNED,
-    BOOK_SAVED
+    BOOK_SAVED,
+    ERROR_OCCURED
 }

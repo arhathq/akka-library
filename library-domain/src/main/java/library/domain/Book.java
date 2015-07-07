@@ -12,7 +12,7 @@ public interface Book extends Serializable {
 
     String getTitle();
 
-    Collection<Author> getAuthors();
+    Collection<? extends Author> getAuthors();
 
     Publisher getPublisher();
 
