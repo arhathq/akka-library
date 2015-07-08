@@ -3,7 +3,6 @@ package library.storage.dao;
 import library.domain.Book;
 import library.storage.entity.BookEntity;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import library.domain.BookSearchRequest;
 
 import javax.persistence.EntityManager;
@@ -49,7 +48,6 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public BookEntity save(BookEntity book) {
         return em.merge(book);
     }
@@ -70,14 +68,12 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public void delete(BookEntity detached) {
         BookEntity persisted = em.merge(detached);
         em.remove(persisted);
     }
 
     @Override
-    @Transactional(readOnly = false)
     public void deleteAll() {
         em.createNativeQuery("Delete from Author_Book").executeUpdate();
         em.createNativeQuery("Delete from Book").executeUpdate();

@@ -1,23 +1,20 @@
 package library.storage.akka.actor;
 
 import akka.actor.UntypedActor;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import library.storage.eaa.BookActivities;
-import library.storage.eaa.BookEvents;
-import org.springframework.beans.factory.annotation.Autowired;
-import library.domain.Book;
-import library.domain.dto.BookDto;
-import library.domain.BookSearchRequest;
 import library.core.eaa.Action;
 import library.core.eaa.Activity;
 import library.core.eaa.Event;
-import library.storage.eaa.StorageEventType;
+import library.domain.Book;
+import library.domain.BookSearchRequest;
+import library.domain.dto.BookDto;
+import library.storage.StorageEntityService;
 import library.storage.StorageException;
 import library.storage.akka.message.StorageActivityMessage;
 import library.storage.akka.message.StorageEventMessage;
-import library.storage.dao.BookDao;
-import library.storage.entity.BookEntity;
+import library.storage.eaa.BookActivities;
+import library.storage.eaa.BookEvents;
+import library.storage.eaa.StorageEventType;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -27,7 +24,7 @@ import java.util.List;
 public class BookActor extends UntypedActor {
 
     @Autowired
-    private BookDao bookDao;
+    private StorageEntityService entityService;
 
     @Override
     public void onReceive(Object o) throws Exception {
@@ -63,14 +60,7 @@ public class BookActor extends UntypedActor {
             BookEvents.GetBooks event = (BookEvents.GetBooks) bookEvent;
             BookSearchRequest bookSearchRequest = event.searchRequest;
 
-            List<BookEntity> bookEntities = bookDao.findAll(bookSearchRequest);
-
-            List<Book> books = Lists.transform(bookEntities, new Function<BookEntity, Book>() {
-                @Override
-                public Book apply(BookEntity bookEntity) {
-                    return new BookDto(bookEntity);
-                }
-            });
+            List<Book> books = entityService.getBooks(bookSearchRequest);
 
             return BookActivities.createGetBooksActivity(books);
         }
@@ -84,8 +74,7 @@ public class BookActor extends UntypedActor {
             Book book = event.book;
 
             // TODO: Should be performed in transaction context
-            BookEntity persistedBook = bookDao.toEntity(book);
-            persistedBook = bookDao.save(persistedBook);
+            Book persistedBook = entityService.saveBook(book);
 
             return BookActivities.createSaveBookActivity(new BookDto(persistedBook));
         }

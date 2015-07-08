@@ -1,5 +1,7 @@
 package library.engine;
 
+import library.domain.Author;
+import library.domain.Publisher;
 import library.domain.pojo.BookPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,16 @@ public class LibraryRestController extends AbstractRestController {
     @RequestMapping(value = "/book", method = RequestMethod.POST)
     public DeferredResult<ResponseEntity<Long>> saveBook(@RequestBody BookPojo book) {
         return objectResult((ListenableFuture<Long>) libraryService.saveBook(book));
+    }
+
+    @RequestMapping(value = "/authors", method = RequestMethod.GET)
+    public DeferredResult<ResponseEntity<List<Author>>> getAuthors() {
+        return objectResult((ListenableFuture<List<Author>>) libraryService.getAuthors());
+    }
+
+    @RequestMapping(value = "/publishers", method = RequestMethod.GET)
+    public DeferredResult<ResponseEntity<List<Publisher>>> getPublishers() {
+        return objectResult((ListenableFuture<List<Publisher>>) libraryService.getPublishers());
     }
 
     @RequestMapping(value = "/booksmap", method = RequestMethod.GET)

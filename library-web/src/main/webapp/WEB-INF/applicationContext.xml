@@ -13,6 +13,8 @@
 
     <context:annotation-config/>
 
+    <context:component-scan base-package="library"/>
+
     <bean id="httpRequestFactory" class="org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory">
         <property name="bufferRequestBody" value="false"/>
     </bean>

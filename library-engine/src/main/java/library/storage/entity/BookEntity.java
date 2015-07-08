@@ -22,11 +22,11 @@ public class BookEntity implements Book, Versioned {
     private Long id;
     private String title;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST}, targetEntity = AuthorEntity.class, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = AuthorEntity.class, fetch = FetchType.EAGER)
     @JoinTable(name = "Author_Book", joinColumns = @JoinColumn(name="book_id"), inverseJoinColumns=@JoinColumn(name="author_id"))
     private Set<Author> authors = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.PERSIST, targetEntity = PublisherEntity.class)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = PublisherEntity.class)
     private Publisher publisher;
 
     @Version
@@ -38,7 +38,9 @@ public class BookEntity implements Book, Versioned {
     public BookEntity(Book book) {
         this.id = book.getId();
         this.title = book.getTitle();
-        this.authors.addAll(book.getAuthors());
+        for (Author author : book.getAuthors()) {
+            this.authors.add(new AuthorEntity(author));
+        }
         if (book.getPublisher() != null) {
             this.publisher = new PublisherEntity(book.getPublisher());
         }

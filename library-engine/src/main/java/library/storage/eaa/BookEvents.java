@@ -18,6 +18,14 @@ public class BookEvents {
         return new SaveBook(book);
     }
 
+    public static GetAuthors createGetAuthorsEvent() {
+        return new GetAuthors();
+    }
+
+    public static GetPublishers createGetPublishersEvent() {
+        return new GetPublishers();
+    }
+
     public static class GetBooks implements Event {
         public final BookSearchRequest searchRequest;
 
@@ -41,6 +49,22 @@ public class BookEvents {
         @Override
         public EventType getEventType() {
             return StorageEventType.SAVE_BOOK;
+        }
+    }
+
+    public static class GetAuthors implements Event {
+
+        @Override
+        public EventType getEventType() {
+            return StorageEventType.GET_AUTHORS;
+        }
+    }
+
+    public static class GetPublishers implements Event {
+
+        @Override
+        public EventType getEventType() {
+            return StorageEventType.GET_PUBLISHERS;
         }
     }
 }

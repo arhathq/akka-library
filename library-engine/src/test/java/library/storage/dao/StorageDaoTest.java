@@ -1,5 +1,6 @@
 package library.storage.dao;
 
+import library.domain.Book;
 import library.storage.entity.AuthorEntity;
 import library.storage.entity.BookEntity;
 import library.storage.entity.PublisherEntity;
@@ -13,14 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import library.domain.Book;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Alexander Kuleshov
@@ -39,53 +42,73 @@ public class StorageDaoTest {
     @Autowired
     private PublisherDao publisherDao;
 
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
     AuthorEntity markTwain, fredHebert;
     BookEntity tomSawer, learnErlang;
     PublisherEntity oreili;
 
     @Before
     public void setUp() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                oreili = new PublisherEntity();
+                oreili.setName("O'Reili");
+                oreili = publisherDao.save(oreili);
 
-        oreili = new PublisherEntity();
-        oreili.setName("O'Reili");
-        oreili = publisherDao.save(oreili);
+                assertTrue(oreili.getId() != null);
 
-        assertTrue(oreili.getId() != null);
+                markTwain = new AuthorEntity();
+                markTwain.setFirstName("Mark");
+                markTwain.setLastName("Twain");
+                markTwain = authorDao.save(markTwain);
 
-        markTwain = new AuthorEntity();
-        markTwain.setFirstName("Mark");
-        markTwain.setLastName("Twain");
-        markTwain = authorDao.save(markTwain);
+                assertTrue(markTwain.getId() != null);
 
-        assertTrue(markTwain.getId() != null);
+                tomSawer = new BookEntity();
+                tomSawer.setTitle("Tom Sawer");
+                tomSawer.getAuthors().add(markTwain);
+                tomSawer.setPublisher(oreili);
 
-        tomSawer = new BookEntity();
-        tomSawer.setTitle("Tom Sawer");
-        tomSawer.getAuthors().add(markTwain);
-        tomSawer.setPublisher(oreili);
-        tomSawer = bookDao.save(tomSawer);
+                tomSawer = bookDao.toEntity(tomSawer);
+                tomSawer = bookDao.save(tomSawer);
 
-        assertTrue(tomSawer.getId() != null);
+                assertTrue(tomSawer.getId() != null);
 
-        fredHebert = new AuthorEntity();
-        fredHebert.setFirstName("Fred");
-        fredHebert.setLastName("Hebert");
-        fredHebert = authorDao.save(fredHebert);
+                fredHebert = new AuthorEntity();
+                fredHebert.setFirstName("Fred");
+                fredHebert.setLastName("Hebert");
+                fredHebert = authorDao.save(fredHebert);
 
-        learnErlang = new BookEntity();
-        learnErlang.setTitle("Learn You Some Erlang For Great Good!");
-        learnErlang.getAuthors().add(fredHebert);
-        learnErlang.setPublisher(oreili);
-        learnErlang = bookDao.save(learnErlang);
+                learnErlang = new BookEntity();
+                learnErlang.setTitle("Learn You Some Erlang For Great Good!");
+                learnErlang.getAuthors().add(fredHebert);
+                learnErlang.setPublisher(oreili);
+                learnErlang = bookDao.save(learnErlang);
+
+                return null;
+            }
+        });
     }
 
     @After
     public void tearDown() throws Exception {
-        bookDao.delete(tomSawer);
-        bookDao.delete(learnErlang);
-        authorDao.delete(markTwain);
-        authorDao.delete(fredHebert);
-        publisherDao.delete(oreili);
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                bookDao.delete(tomSawer);
+                bookDao.delete(learnErlang);
+                authorDao.delete(markTwain);
+                authorDao.delete(fredHebert);
+                publisherDao.delete(oreili);
+
+                return null;
+            }
+        });
 
         assertTrue(bookDao.findAll().isEmpty());
         assertTrue(authorDao.findAll().isEmpty());
@@ -124,33 +147,64 @@ public class StorageDaoTest {
         assertTrue(books.contains(learnErlang));
     }
 
+/*
     @Test
     public void concurrentUpdateBook() throws Exception {
-        BookEntity aliceBook = bookDao.findOne(tomSawer.getId());
+        ExecutorService es = Executors.newFixedThreadPool(2);
+
+        final BookEntity aliceBook = bookDao.findOne(tomSawer.getId());
         int aliceVersion = aliceBook.getVersion();
 
-        BookEntity batchBook = bookDao.findOne(tomSawer.getId());
+        Future<BookEntity> futureBook = es.submit(new Callable<BookEntity>() {
+            @Override
+            public BookEntity call() throws Exception {
+                return bookDao.findOne(tomSawer.getId());
+            }
+        });
+        final BookEntity batchBook = futureBook.get(1000, TimeUnit.MILLISECONDS);
         int batchVersion = batchBook.getVersion();
 
         assertTrue(aliceVersion == batchVersion);
 
-        batchBook.setPublisher(null);
-        batchBook = bookDao.save(batchBook);
-        batchVersion = batchBook.getVersion();
+        futureBook = es.submit(new Callable<BookEntity>() {
+            @Override
+            public BookEntity call() throws Exception {
+                TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+                return transaction.execute(new TransactionCallback<BookEntity>() {
+                    @Override
+                    public BookEntity doInTransaction(TransactionStatus status) {
+                        batchBook.setPublisher(null);
+                        return bookDao.save(batchBook);
+                    }
+                });
+            }
+        });
+        BookEntity updatedBatchBook = futureBook.get(1000, TimeUnit.MILLISECONDS);
+        batchVersion = updatedBatchBook.getVersion();
+
+        es.shutdown();
 
         assertTrue(aliceVersion < batchVersion);
 
         aliceBook.setTitle("updated title");
-        try {
-            aliceBook = bookDao.save(aliceBook);
-        } catch (OptimisticLockingFailureException e) {
-            BookEntity latestBook = bookDao.findOne(aliceBook.getId());
-            aliceBook = bookDao.save(latestBook.from(aliceBook));
-        }
-        aliceVersion = aliceBook.getVersion();
+        final TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        BookEntity updatedAliceBook = transaction.execute(new TransactionCallback<BookEntity>() {
+            @Override
+            public BookEntity doInTransaction(TransactionStatus status) {
+                try {
+                    return bookDao.save(aliceBook);
+                } catch (OptimisticLockingFailureException e) {
+                    transaction.isReadOnly();
+                    BookEntity latestBook = bookDao.findOne(aliceBook.getId());
+                    return bookDao.save(latestBook.from(aliceBook));
+                }
+            }
+        });
+        aliceVersion = updatedAliceBook.getVersion();
 
         assertTrue(aliceVersion > batchVersion);
 
         tomSawer = bookDao.findOne(tomSawer.getId()); //Update with last modified version
     }
+*/
 }

@@ -18,6 +18,15 @@ public class AuthorEntity implements Author {
     private String firstName;
     private String lastName;
 
+    public AuthorEntity() {
+    }
+
+    public AuthorEntity(Author author) {
+        this.id = author.getId();
+        this.firstName = author.getFirstName();
+        this.lastName = author.getLastName();
+    }
+
     @Override
     public Long getId() {
         return id;
