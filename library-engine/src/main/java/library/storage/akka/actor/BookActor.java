@@ -1,81 +1,49 @@
 package library.storage.akka.actor;
 
-import akka.actor.UntypedActor;
-import library.core.eaa.Action;
-import library.core.eaa.Activity;
-import library.core.eaa.Event;
+import library.core.eaa.*;
 import library.domain.Book;
-import library.domain.BookSearchRequest;
 import library.domain.dto.BookDto;
-import library.storage.StorageEntityService;
 import library.storage.StorageException;
 import library.storage.akka.message.StorageActivityMessage;
 import library.storage.akka.message.StorageEventMessage;
 import library.storage.eaa.BookActivities;
 import library.storage.eaa.BookEvents;
 import library.storage.eaa.StorageEventType;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 /**
  * @author Alexander Kuleshov
  */
-public class BookActor extends UntypedActor {
-
-    @Autowired
-    private StorageEntityService entityService;
+public class BookActor extends StorageActor {
 
     @Override
-    public void onReceive(Object o) throws Exception {
-        if (o instanceof StorageEventMessage) {
-            StorageEventMessage eventMessage = (StorageEventMessage) o;
-            StorageActivityMessage activityMessage = performActivityByEventDecision(eventMessage);
-            eventMessage.origin.tell(activityMessage, self());
-        } else {
-            unhandled(o);
-        }
-    }
-
-    private StorageActivityMessage performActivityByEventDecision(StorageEventMessage eventMessage) {
+    protected StorageActivityMessage performActivityByEventDecision(StorageEventMessage eventMessage) {
         Event event = eventMessage.event;
 
-        Action bookAction;
+        Activity activity;
         if (StorageEventType.GET_BOOKS == event.getEventType()) {
-            bookAction = new GetBooksAction();
+            activity = new GetBooksAction().perform(event);
         } else if (StorageEventType.SAVE_BOOK == event.getEventType()) {
-            bookAction = new SaveBookAction();
+            activity = new SaveBookAction().perform(event);
         } else {
-            throw new StorageException("Unsupported event type: " + event.getEventType());
+            activity = Activities.createErrorActivity(new StorageException("Unsupported event type: " + event.getEventType()));
         }
-
-        Activity activity = bookAction.perform(event);
         return new StorageActivityMessage(activity);
     }
 
-    private class GetBooksAction implements Action {
-
+    private class GetBooksAction extends AbstractAction {
         @Override
-        public Activity perform(Event bookEvent) {
-            BookEvents.GetBooks event = (BookEvents.GetBooks) bookEvent;
-            BookSearchRequest bookSearchRequest = event.searchRequest;
-
-            List<Book> books = entityService.getBooks(bookSearchRequest);
-
+        public Activity doPerform(Event event) throws Throwable {
+            List<Book> books = entityService.getBooks(((BookEvents.GetBooks) event).searchRequest);
             return BookActivities.createGetBooksActivity(books);
         }
     }
 
-    private class SaveBookAction implements Action {
-
+    private class SaveBookAction extends AbstractAction {
         @Override
-        public Activity perform(Event bookEvent) {
-            BookEvents.SaveBook event = (BookEvents.SaveBook) bookEvent;
-            Book book = event.book;
-
-            // TODO: Should be performed in transaction context
-            Book persistedBook = entityService.saveBook(book);
-
+        public Activity doPerform(Event event) throws Throwable {
+            Book persistedBook = entityService.saveBook(((BookEvents.SaveBook) event).book);
             return BookActivities.createSaveBookActivity(new BookDto(persistedBook));
         }
     }

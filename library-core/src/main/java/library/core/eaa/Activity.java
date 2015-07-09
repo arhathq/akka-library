@@ -15,6 +15,4 @@ public interface Activity {
 
     Object getPayload();
 
-    Throwable getThrowable();
-
 }

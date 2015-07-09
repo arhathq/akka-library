@@ -3,13 +3,11 @@ package library.core.eaa;
 /**
  * @author Alexander Kuleshov
  */
-public abstract class AbstractActivity implements Activity {
-    private Throwable throwable;
+public abstract class AbstractThrowableActivity implements ThrowableActivity {
 
-    public AbstractActivity() {
-    }
+    private final Throwable throwable;
 
-    public AbstractActivity(Throwable throwable) {
+    public AbstractThrowableActivity(Throwable throwable) {
         this.throwable = throwable;
     }
 

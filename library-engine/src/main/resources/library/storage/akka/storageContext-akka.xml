@@ -12,4 +12,8 @@
 
     <bean id="bookActor" class="library.storage.akka.actor.BookActor" scope="prototype"/>
 
+    <bean id="authorActor" class="library.storage.akka.actor.AuthorActor" scope="prototype"/>
+
+    <bean id="publisherActor" class="library.storage.akka.actor.PublisherActor" scope="prototype"/>
+
 </beans>

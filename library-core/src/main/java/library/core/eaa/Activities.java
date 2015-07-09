@@ -12,7 +12,7 @@ public class Activities {
         return new ErrorActivity(t);
     }
 
-    private static class AckActivity extends AbstractActivity {
+    private static class AckActivity implements Activity {
 
         @Override
         public ActivityType getActivityType() {
@@ -25,7 +25,7 @@ public class Activities {
         }
     }
 
-    private static class ErrorActivity extends AbstractActivity {
+    private static class ErrorActivity extends AbstractThrowableActivity {
         public ErrorActivity(Throwable t) {
             super(t);
         }

@@ -1,6 +1,6 @@
 package library.storage.eaa;
 
-import library.core.eaa.AbstractActivity;
+import library.core.eaa.Activity;
 import library.domain.Book;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class BookActivities {
         return new SaveBookActivity(book);
     }
 
-    private static class GetBooksActivity extends AbstractActivity {
+    private static class GetBooksActivity implements Activity {
         private final List<Book> books;
 
         public GetBooksActivity(List<Book> books) {
@@ -37,7 +37,7 @@ public class BookActivities {
         }
     }
 
-    private static class SaveBookActivity extends AbstractActivity {
+    private static class SaveBookActivity implements Activity {
         private final Book book;
 
         public SaveBookActivity(Book book) {
