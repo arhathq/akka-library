@@ -1,6 +1,7 @@
-package library.storage.dao;
+package library.storage.dao.hibernate;
 
 import library.domain.Book;
+import library.storage.dao.BookDao;
 import library.storage.entity.BookEntity;
 import org.springframework.stereotype.Repository;
 import library.domain.BookSearchRequest;

@@ -1,5 +1,6 @@
-package library.storage.dao;
+package library.storage.dao.hibernate;
 
+import library.storage.dao.PublisherDao;
 import library.storage.entity.PublisherEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

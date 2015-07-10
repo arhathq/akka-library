@@ -14,16 +14,12 @@ public class BookEvents {
         return new GetBooks(request);
     }
 
+    public static GetBook createGetBookEvent(Long id) {
+        return new GetBook(id);
+    }
+
     public static SaveBook createSaveBookEvent(final Book book) {
         return new SaveBook(book);
-    }
-
-    public static GetAuthors createGetAuthorsEvent() {
-        return new GetAuthors();
-    }
-
-    public static GetPublishers createGetPublishersEvent() {
-        return new GetPublishers();
     }
 
     public static class GetBooks implements Event {
@@ -52,19 +48,16 @@ public class BookEvents {
         }
     }
 
-    public static class GetAuthors implements Event {
+    public static class GetBook implements Event {
+        public final Long bookId;
 
-        @Override
-        public EventType getEventType() {
-            return StorageEventType.GET_AUTHORS;
+        public GetBook(Long bookId) {
+            this.bookId = bookId;
         }
-    }
-
-    public static class GetPublishers implements Event {
 
         @Override
         public EventType getEventType() {
-            return StorageEventType.GET_PUBLISHERS;
+            return StorageEventType.GET_BOOK;
         }
     }
 }

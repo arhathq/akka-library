@@ -1,6 +1,7 @@
 package library.storage.eaa;
 
 import library.core.eaa.Activity;
+import library.core.eaa.ActivityType;
 import library.domain.Book;
 
 import java.util.ArrayList;
@@ -13,6 +14,10 @@ public class BookActivities {
 
     public static GetBooksActivity createGetBooksActivity(List<Book> books) {
         return new GetBooksActivity(books);
+    }
+
+    public static GetBookActivity createGetBookActivity(Book book) {
+        return new GetBookActivity(book);
     }
 
     public static SaveBookActivity createSaveBookActivity(Book book) {
@@ -47,6 +52,24 @@ public class BookActivities {
         @Override
         public StorageActivityType getActivityType() {
             return StorageActivityType.BOOK_SAVED;
+        }
+
+        @Override
+        public Object getPayload() {
+            return book;
+        }
+    }
+
+    private static class GetBookActivity implements Activity {
+        private final Book book;
+
+        public GetBookActivity(Book book) {
+            this.book = book;
+        }
+
+        @Override
+        public ActivityType getActivityType() {
+            return StorageActivityType.BOOK_RETURNED;
         }
 
         @Override

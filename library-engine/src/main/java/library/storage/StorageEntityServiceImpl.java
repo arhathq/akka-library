@@ -37,29 +37,35 @@ public class StorageEntityServiceImpl implements StorageEntityService {
     private PublisherDao publisherDao;
 
     @Override
-    public List<Book> getBooks(BookSearchRequest bookRequest) throws StorageException {
+    public List<Book> getBooks(BookSearchRequest bookRequest) {
         List<BookEntity> bookEntities = bookDao.findAll(bookRequest);
-
-        List<Book> books = Lists.transform(bookEntities, new Function<BookEntity, Book>() {
+        return Lists.transform(bookEntities, new Function<BookEntity, Book>() {
             @Override
             public Book apply(BookEntity bookEntity) {
                 return new BookDto(bookEntity);
             }
         });
-        return books;
+    }
+
+    @Override
+    public Book getBook(Long id) {
+        BookEntity entity = bookDao.findOne(id);
+        if (entity != null) {
+            return new BookDto(entity);
+        }
+        return null;
     }
 
     @Override
     @Transactional(readOnly = false)
-    public Book saveBook(Book book) throws StorageException {
+    public Book saveBook(Book book) {
         BookEntity persistedBook = bookDao.toEntity(book);
-        return bookDao.save(persistedBook);
+        return new BookDto(bookDao.save(persistedBook));
     }
 
     @Override
-    public List<Author> getAuthors() throws StorageException {
+    public List<Author> getAuthors() {
         List<AuthorEntity> authorEntities = authorDao.findAll();
-
         return Lists.transform(authorEntities, new Function<AuthorEntity, Author>() {
             @Override
             public Author apply(AuthorEntity authorEntity) {
@@ -69,14 +75,41 @@ public class StorageEntityServiceImpl implements StorageEntityService {
     }
 
     @Override
-    public List<Publisher> getPublishers() throws StorageException {
-        List<PublisherEntity> publisherEntities = publisherDao.findAll();
+    public Author getAuthor(Long id) {
+        AuthorEntity entity = authorDao.findOne(id);
+        if (entity != null) {
+            return new AuthorDto(entity);
+        }
+        return null;
+    }
 
+    @Override
+    public Author saveAuthor(Author author) {
+        return new AuthorDto(authorDao.save(new AuthorEntity(author)));
+    }
+
+    @Override
+    public List<Publisher> getPublishers() {
+        List<PublisherEntity> publisherEntities = publisherDao.findAll();
         return Lists.transform(publisherEntities, new Function<PublisherEntity, Publisher>() {
             @Override
             public Publisher apply(PublisherEntity publisherEntity) {
                 return new PublisherDto(publisherEntity);
             }
         });
+    }
+
+    @Override
+    public Publisher getPublisher(Long id) {
+        PublisherEntity entity = publisherDao.findOne(id);
+        if (entity != null) {
+            return new PublisherDto(entity);
+        }
+        return null;
+    }
+
+    @Override
+    public Publisher savePublisher(Publisher publisher) {
+        return new PublisherDto(publisherDao.save(new PublisherEntity(publisher)));
     }
 }

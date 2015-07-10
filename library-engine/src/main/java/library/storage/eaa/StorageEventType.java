@@ -7,6 +7,14 @@ import library.core.eaa.EventType;
  */
 public enum StorageEventType implements EventType {
 
-    GET_BOOKS, GET_AUTHORS, GET_PUBLISHERS, SAVE_BOOK
+    GET_BOOKS,
+    GET_AUTHORS,
+    GET_PUBLISHERS,
+    GET_BOOK,
+    GET_AUTHOR,
+    GET_PUBLISHER,
+    SAVE_BOOK,
+    SAVE_AUTHOR,
+    SAVE_PUBLISHER
 
 }

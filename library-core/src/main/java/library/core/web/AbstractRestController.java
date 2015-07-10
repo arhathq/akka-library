@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractRestController {
 
-    public static final long WEB_SERVICE_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
+    public static final long WEB_SERVICE_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
 
     protected <T> DeferredResult<ResponseEntity<T>> objectResult(ListenableFuture<T> futureResult) {
         DeferredResult<ResponseEntity<T>> response = new DeferredResult<>(WEB_SERVICE_TIMEOUT, errorResult("Request timeout", HttpStatus.REQUEST_TIMEOUT));

@@ -24,10 +24,12 @@ public class BookActor extends StorageActor {
         Activity activity;
         if (StorageEventType.GET_BOOKS == event.getEventType()) {
             activity = new GetBooksAction().perform(event);
+        } else if (StorageEventType.GET_BOOK == event.getEventType()) {
+            activity = new GetBookAction().perform(event);
         } else if (StorageEventType.SAVE_BOOK == event.getEventType()) {
             activity = new SaveBookAction().perform(event);
         } else {
-            activity = Activities.createErrorActivity(new StorageException("Unsupported event type: " + event.getEventType()));
+            activity = Activities.createErrorActivity(new StorageException("Unsupported event: " + event.getEventType()));
         }
         return new StorageActivityMessage(activity);
     }
@@ -37,6 +39,14 @@ public class BookActor extends StorageActor {
         public Activity doPerform(Event event) throws Throwable {
             List<Book> books = entityService.getBooks(((BookEvents.GetBooks) event).searchRequest);
             return BookActivities.createGetBooksActivity(books);
+        }
+    }
+
+    private class GetBookAction extends AbstractAction {
+        @Override
+        public Activity doPerform(Event event) throws Throwable {
+            Book book = entityService.getBook(((BookEvents.GetBook) event).bookId);
+            return BookActivities.createGetBookActivity(book);
         }
     }
 

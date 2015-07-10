@@ -14,10 +14,20 @@ public interface StorageEntityService {
 
     List<Book> getBooks(BookSearchRequest bookRequest) throws StorageException;
 
+    Book getBook(Long id) throws StorageException;
+
     Book saveBook(Book book) throws StorageException;
 
     List<Author> getAuthors() throws StorageException;
 
+    Author getAuthor(Long id) throws StorageException;
+
+    Author saveAuthor(Author author) throws StorageException;
+
     List<Publisher> getPublishers() throws StorageException;
+
+    Publisher getPublisher(Long id) throws StorageException;
+
+    Publisher savePublisher(Publisher publisher) throws StorageException;
 
 }

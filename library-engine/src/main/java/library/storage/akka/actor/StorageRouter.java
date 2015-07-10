@@ -35,10 +35,22 @@ public class StorageRouter extends UntypedActor {
         ActorRef actorProcessor;
         if (StorageEventType.GET_BOOKS == event.getEventType()) {
             actorProcessor = akkaService.createSpringActor("bookActor");
+        } else if (StorageEventType.GET_BOOK == event.getEventType()) {
+            actorProcessor = akkaService.createSpringActor("bookActor");
         } else if (StorageEventType.SAVE_BOOK == event.getEventType()) {
             actorProcessor = akkaService.createSpringActor("bookActor");
         } else if (StorageEventType.GET_AUTHORS == event.getEventType()) {
             actorProcessor = akkaService.createSpringActor("authorActor");
+        } else if (StorageEventType.GET_AUTHOR == event.getEventType()) {
+            actorProcessor = akkaService.createSpringActor("authorActor");
+        } else if (StorageEventType.SAVE_AUTHOR == event.getEventType()) {
+            actorProcessor = akkaService.createSpringActor("authorActor");
+        } else if (StorageEventType.GET_PUBLISHERS == event.getEventType()) {
+            actorProcessor = akkaService.createSpringActor("publisherActor");
+        } else if (StorageEventType.GET_PUBLISHER == event.getEventType()) {
+            actorProcessor = akkaService.createSpringActor("publisherActor");
+        } else if (StorageEventType.SAVE_PUBLISHER == event.getEventType()) {
+            actorProcessor = akkaService.createSpringActor("publisherActor");
         } else {
             ThrowableActivity errorActivity = Activities.createErrorActivity(new StorageException("Unknown event: " + event.getEventType()));
             sender().tell(new StorageErrorMessage(errorActivity, message.origin), self());
