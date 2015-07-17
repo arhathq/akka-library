@@ -1,7 +1,6 @@
 package library.storage.akka.message;
 
 import akka.actor.ActorRef;
-import library.core.eaa.Activity;
 import library.core.eaa.ThrowableActivity;
 
 /**
@@ -10,7 +9,7 @@ import library.core.eaa.ThrowableActivity;
 public class StorageErrorMessage extends StorageActivityMessage {
     public final ActorRef destination;
 
-    public StorageErrorMessage(Activity activity, ActorRef destination) {
+    public StorageErrorMessage(ThrowableActivity activity, ActorRef destination) {
         super(activity);
         this.destination = destination;
     }

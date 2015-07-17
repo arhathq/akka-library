@@ -1,6 +1,6 @@
 package library.storage.akka.actor;
 
-import library.core.eaa.AbstractAction;
+import library.core.eaa.ThrowableAction;
 import library.core.eaa.Activities;
 import library.core.eaa.Activity;
 import library.core.eaa.Event;
@@ -14,6 +14,8 @@ import library.storage.eaa.StorageEventType;
 
 import java.util.List;
 
+import static library.storage.eaa.PublisherEvents.*;
+
 /**
  * @author Alexander Kuleshov
  */
@@ -25,37 +27,37 @@ public class PublisherActor extends StorageActor {
 
         Activity activity;
         if (StorageEventType.GET_PUBLISHERS == event.getEventType()) {
-            activity = new GetPublishersAction().perform(event);
+            activity = new GetPublishersAction().perform((GetPublishers) event);
         } else if (StorageEventType.GET_PUBLISHER == event.getEventType()) {
-            activity = new GetPublisherAction().perform(event);
+            activity = new GetPublisherAction().perform((GetPublisher) event);
         } else if (StorageEventType.SAVE_PUBLISHER == event.getEventType()) {
-            activity = new SavePublisherAction().perform(event);
+            activity = new SavePublisherAction().perform((SavePublisher) event);
         } else {
             activity = Activities.createErrorActivity(new StorageException("Unsupported event: " + event.getEventType()));
         }
-        return new StorageActivityMessage(activity);
+        return createActivityMessage(activity, eventMessage.origin);
     }
 
-    private class GetPublishersAction extends AbstractAction {
+    private class GetPublishersAction extends ThrowableAction<GetPublishers> {
         @Override
-        public Activity doPerform(Event event) throws Throwable {
+        public Activity doPerform(GetPublishers event) throws Throwable {
             List<Publisher> publishers = entityService.getPublishers();
             return PublisherActivities.createGetPublishersActivity(publishers);
         }
     }
 
-    private class GetPublisherAction extends AbstractAction {
+    private class GetPublisherAction extends ThrowableAction<GetPublisher> {
         @Override
-        public Activity doPerform(Event event) throws Throwable {
-            Publisher publisher = entityService.getPublisher(((PublisherEvents.GetPublisher) event).id);
+        public Activity doPerform(GetPublisher event) throws Throwable {
+            Publisher publisher = entityService.getPublisher(event.id);
             return PublisherActivities.createGetPublisherActivity(publisher);
         }
     }
 
-    private class SavePublisherAction extends AbstractAction {
+    private class SavePublisherAction extends ThrowableAction<SavePublisher> {
         @Override
-        public Activity doPerform(Event event) throws Throwable {
-            Publisher publisher = entityService.savePublisher(((PublisherEvents.SavePublisher) event).publisher);
+        public Activity doPerform(SavePublisher event) throws Throwable {
+            Publisher publisher = entityService.savePublisher(event.publisher);
             return PublisherActivities.createSavePublisherActivity(publisher);
         }
     }

@@ -1,6 +1,6 @@
 package library.storage.akka.actor;
 
-import library.core.eaa.AbstractAction;
+import library.core.eaa.ThrowableAction;
 import library.core.eaa.Activities;
 import library.core.eaa.Activity;
 import library.core.eaa.Event;
@@ -9,10 +9,11 @@ import library.storage.StorageException;
 import library.storage.akka.message.StorageActivityMessage;
 import library.storage.akka.message.StorageEventMessage;
 import library.storage.eaa.AuthorActivities;
-import library.storage.eaa.AuthorEvents;
 import library.storage.eaa.StorageEventType;
 
 import java.util.List;
+
+import static library.storage.eaa.AuthorEvents.*;
 
 /**
  * @author Alexander Kuleshov
@@ -25,37 +26,37 @@ public class AuthorActor extends StorageActor {
 
         Activity activity;
         if (StorageEventType.GET_AUTHORS == event.getEventType()) {
-            activity = new GetAuthorsAction().perform(event);
+            activity = new GetAuthorsAction().perform((GetAuthors) event);
         } else if (StorageEventType.GET_AUTHOR == event.getEventType()) {
-            activity = new GetAuthorAction().perform(event);
+            activity = new GetAuthorAction().perform((GetAuthor) event);
         } else if (StorageEventType.SAVE_AUTHOR == event.getEventType()) {
-            activity = new SaveAuthorAction().perform(event);
+            activity = new SaveAuthorAction().perform((SaveAuthor) event);
         } else {
             activity = Activities.createErrorActivity(new StorageException("Unsupported event: " + event.getEventType()));
         }
-        return new StorageActivityMessage(activity);
+        return createActivityMessage(activity, eventMessage.origin);
     }
 
-    private class GetAuthorsAction extends AbstractAction {
+    private class GetAuthorsAction extends ThrowableAction<GetAuthors> {
         @Override
-        public Activity doPerform(Event event) throws Throwable {
+        public Activity doPerform(GetAuthors event) throws Throwable {
             List<Author> authors = entityService.getAuthors();
             return AuthorActivities.createGetAuthorsActivity(authors);
         }
     }
 
-    private class GetAuthorAction extends AbstractAction {
+    private class GetAuthorAction extends ThrowableAction<GetAuthor> {
         @Override
-        public Activity doPerform(Event event) throws Throwable {
-            Author author = entityService.getAuthor(((AuthorEvents.GetAuthor) event).id);
+        public Activity doPerform(GetAuthor event) throws Throwable {
+            Author author = entityService.getAuthor(event.id);
             return AuthorActivities.createGetAuthorActivity(author);
         }
     }
 
-    private class SaveAuthorAction extends AbstractAction {
+    private class SaveAuthorAction extends ThrowableAction<SaveAuthor> {
         @Override
-        public Activity doPerform(Event event) throws Throwable {
-            Author author = entityService.saveAuthor(((AuthorEvents.SaveAuthor) event).author);
+        public Activity doPerform(SaveAuthor event) throws Throwable {
+            Author author = entityService.saveAuthor(event.author);
             return AuthorActivities.createSaveAuthorActivity(author);
         }
     }

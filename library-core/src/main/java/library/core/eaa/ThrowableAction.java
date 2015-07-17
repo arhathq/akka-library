@@ -3,9 +3,9 @@ package library.core.eaa;
 /**
  * @author Alexander Kuleshov
  */
-public abstract class AbstractAction implements Action {
+public abstract class ThrowableAction<E extends Event> implements Action<Activity, E> {
     @Override
-    public Activity perform(Event event) {
+    public Activity perform(E event) {
         try {
             return doPerform(event);
         } catch (Throwable t) {
@@ -13,5 +13,5 @@ public abstract class AbstractAction implements Action {
         }
     }
 
-    public abstract Activity doPerform(final Event event) throws Throwable;
+    public abstract Activity doPerform(final E event) throws Throwable;
 }

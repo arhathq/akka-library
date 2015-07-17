@@ -3,8 +3,8 @@ package library.core.eaa;
 /**
  * @author Alexander Kuleshov
  */
-public interface Action {
+public interface Action<A extends Activity, E extends Event> {
 
-    Activity perform(Event bookEvent);
+    A perform(E event);
 
 }

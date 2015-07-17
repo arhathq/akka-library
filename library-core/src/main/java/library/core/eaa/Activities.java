@@ -8,11 +8,11 @@ public class Activities {
         return new AckActivity();
     }
 
-    public static ErrorActivity createErrorActivity(Throwable t) {
+    public static <A extends ErrorActivity> ErrorActivity createErrorActivity(Throwable t) {
         return new ErrorActivity(t);
     }
 
-    private static class AckActivity implements Activity {
+    public static class AckActivity implements Activity {
 
         @Override
         public ActivityType getActivityType() {
@@ -25,7 +25,7 @@ public class Activities {
         }
     }
 
-    private static class ErrorActivity extends AbstractThrowableActivity {
+    public static class ErrorActivity extends AbstractThrowableActivity {
         public ErrorActivity(Throwable t) {
             super(t);
         }
