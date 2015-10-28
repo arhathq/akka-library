@@ -200,7 +200,7 @@ public class AkkaLibraryService implements LibraryService {
 
     private void sendEvent(Event event, PartialFunction<Object, ?> onSuccess, PartialFunction<Throwable, ?> onFailure) throws LibraryException {
         scala.concurrent.Future<Object> future =
-                Patterns.ask(akkaService.getSpringActor(STORAGE_SUPERVISOR), new EventMessage(event), timeout);
+                Patterns.ask(akkaService.getActor(STORAGE_SUPERVISOR), new EventMessage(event), timeout);
         ExecutionContext executionContext = akkaService.getSystem().dispatcher();
         future.onSuccess(onSuccess, executionContext);
         future.onFailure(onFailure, executionContext);

@@ -3,7 +3,6 @@ package library.storage.akka.actor;
 import akka.actor.ActorRef;
 import akka.actor.Status;
 import akka.actor.UntypedActor;
-import library.core.eaa.ThrowableActivity;
 import library.storage.akka.message.StorageErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import library.core.akka.AkkaService;
@@ -30,7 +29,7 @@ public class StorageSupervisor extends UntypedActor {
     }
 
     public void delegateEvent(EventMessage message) {
-        ActorRef actorProcessor = akkaService.getSpringActor("storageRouter");
+        ActorRef actorProcessor = akkaService.getActor("storageRouter");
         actorProcessor.tell(new StorageEventMessage(message.event, sender()), self());
     }
 

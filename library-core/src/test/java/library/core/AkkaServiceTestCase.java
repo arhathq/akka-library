@@ -1,8 +1,10 @@
 package library.core;
 
 import akka.actor.ActorRef;
+import akka.actor.Status;
 import akka.actor.UntypedActor;
 import akka.pattern.Patterns;
+import akka.util.Timeout;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import library.core.akka.AkkaService;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -38,6 +42,12 @@ public class AkkaServiceTestCase {
         public UntypedActor getTestActor() {
             return new TestActor();
         }
+
+        @Bean(name = "statefullActor")
+        @Scope("prototype")
+        public UntypedActor getStatefullActor() {
+            return new StatefullActor();
+        }
     }
 
     private static class TestActor extends UntypedActor {
@@ -47,22 +57,40 @@ public class AkkaServiceTestCase {
 
         @Override
         public void onReceive(Object o) throws Exception {
-            sender().tell(self().path(), self());
+            akkaService.sendMessage(self().path(), sender(), self());
+        }
+    }
+
+    private static class StatefullActor extends UntypedActor {
+
+        private int count;
+
+        @Autowired
+        private AkkaService akkaService;
+
+        @Override
+        public void onReceive(Object o) throws Exception {
+            count ++;
+
+            if (count == 3) {
+                akkaService.sendMessage(count, sender(), self());
+            } else {
+                akkaService.sendMessage(new Status.Failure(new RuntimeException("Failed")), sender(), self());
+            }
         }
     }
 
     @Test
     public void concurrentTest() {
-        final ActorRef originTestActor = akkaService.getSpringActor("testActor");
+        final ActorRef originTestActor = akkaService.getActor("testActor");
         for (int i = 0; i < 10; i++) {
             final int id = i;
             new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        ActorRef testActor = akkaService.getSpringActor("testActor");
-                        Future<Object> future = Patterns.ask(testActor, String.valueOf(id), 10000);
-                        Object result = Await.result(future, Duration.Inf());
+                        ActorRef testActor = akkaService.getActor("testActor");
+                        Object result = akkaService.sendMessageWithReply(String.valueOf(id), testActor, Timeout.apply(10000, TimeUnit.MILLISECONDS));
                         assertTrue(originTestActor.path().equals(result));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -70,5 +98,14 @@ public class AkkaServiceTestCase {
                 }
             }.run();
         }
+    }
+
+    @Test
+    public void sendRetryTest() {
+        final ActorRef actor = akkaService.getActor("statefullActor");
+
+        Integer result = (Integer) akkaService.sendMessageWithReply("Hello", actor, 5, 1, Timeout.apply(1, TimeUnit.SECONDS));
+
+        assertTrue(result == 3);
     }
 }
