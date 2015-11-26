@@ -43,23 +43,23 @@ public class StorageRouter extends UntypedActor {
 
         ActorRef actorProcessor;
         if (StorageEventType.GET_BOOKS == event.getEventType()) {
-            actorProcessor = akkaService.createActor(BOOK_ACTOR);
+            actorProcessor = akkaService.createActor(context(), BOOK_ACTOR);
         } else if (StorageEventType.GET_BOOK == event.getEventType()) {
-            actorProcessor = akkaService.createActor(BOOK_ACTOR);
+            actorProcessor = akkaService.createActor(context(), BOOK_ACTOR);
         } else if (StorageEventType.SAVE_BOOK == event.getEventType()) {
-            actorProcessor = akkaService.createActor(BOOK_ACTOR);
+            actorProcessor = akkaService.createActor(context(), BOOK_ACTOR);
         } else if (StorageEventType.GET_AUTHORS == event.getEventType()) {
-            actorProcessor = akkaService.createActor(AUTHOR_BOOK);
+            actorProcessor = akkaService.createActor(context(), AUTHOR_BOOK);
         } else if (StorageEventType.GET_AUTHOR == event.getEventType()) {
-            actorProcessor = akkaService.createActor(AUTHOR_BOOK);
+            actorProcessor = akkaService.createActor(context(), AUTHOR_BOOK);
         } else if (StorageEventType.SAVE_AUTHOR == event.getEventType()) {
-            actorProcessor = akkaService.createActor(AUTHOR_BOOK);
+            actorProcessor = akkaService.createActor(context(), AUTHOR_BOOK);
         } else if (StorageEventType.GET_PUBLISHERS == event.getEventType()) {
-            actorProcessor = akkaService.createActor(PUBLISHER_ACTOR);
+            actorProcessor = akkaService.createActor(context(), PUBLISHER_ACTOR);
         } else if (StorageEventType.GET_PUBLISHER == event.getEventType()) {
-            actorProcessor = akkaService.createActor(PUBLISHER_ACTOR);
+            actorProcessor = akkaService.createActor(context(), PUBLISHER_ACTOR);
         } else if (StorageEventType.SAVE_PUBLISHER == event.getEventType()) {
-            actorProcessor = akkaService.createActor(PUBLISHER_ACTOR);
+            actorProcessor = akkaService.createActor(context(), PUBLISHER_ACTOR);
         } else {
             sendError(message.id, new StorageException("Unknown event: " + event.getEventType()), message.origin);
             return;

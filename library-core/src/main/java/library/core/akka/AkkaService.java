@@ -1,9 +1,6 @@
 package library.core.akka;
 
-import akka.actor.ActorContext;
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
+import akka.actor.*;
 import akka.pattern.Patterns;
 import akka.routing.RoundRobinPool;
 import akka.routing.RouterConfig;
@@ -15,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -37,7 +33,7 @@ public class AkkaService {
     @Resource(name = "routerProps")
     private Properties routerProps;
 
-    private static final Map<String, ActorRef> akkaActors = new ConcurrentHashMap<>();
+    private final Map<String, ActorRef> parentActors = new ConcurrentHashMap<>();
 
     private ReentrantLock lock = new ReentrantLock();
 
@@ -46,46 +42,60 @@ public class AkkaService {
     }
 
     public ActorRef getActor(String beanId) {
-
-            ActorRef result = akkaActors.get(beanId);
-            if (result == null) {
-                try {
-                    lock.lock();
-                    result = akkaActors.get(beanId);
-                    if (result == null) {
-                        Props props = SpringExtension.SpringExtProvider.get(system).props(beanId);
-                        if (routerProps.containsKey(beanId)) {
-                            RouterConfig router = new RoundRobinPool(Integer.parseInt(routerProps.getProperty(beanId)));
-                            props = props.withRouter(router);
-                        }
-                        result = system.actorOf(props, beanId);
-                        akkaActors.put(beanId, result);
-                    }
-                } finally {
-                    lock.unlock();
+        ActorRef result = parentActors.get(beanId);
+        if (result == null) {
+            try {
+                lock.lock();
+                result = parentActors.get(beanId);
+                if (result == null) {
+                    result = createActor(beanId, beanId);
+                    parentActors.put(beanId, result);
                 }
+            } finally {
+                lock.unlock();
             }
-            return result;
+        }
+        return result;
     }
 
     public ActorRef createActor(String beanId) {
-        Props props = SpringExtension.SpringExtProvider.get(system).props(beanId);
-        return system.actorOf(props);
+        return createActor(system, beanId, null, null);
+    }
+
+    public ActorRef createActor(String beanId, String actorId) {
+        return createActor(system, beanId, actorId, null);
+    }
+
+    public ActorRef createActor(String beanId, String actorId, RouterConfig routerConfig) {
+        return createActor(system, beanId, actorId, routerConfig);
     }
 
     public ActorRef createActor(ActorContext context, String beanId) {
-        Props props = SpringExtension.SpringExtProvider.get(system).props(beanId);
-        return context.actorOf(props);
+        return createActor(context, beanId, null, null);
     }
 
     public ActorRef createActor(ActorContext context, String beanId, String actorId) {
-        Props props = SpringExtension.SpringExtProvider.get(system).props(beanId);
-        return context.actorOf(props, actorId);
+        return createActor(context, beanId, actorId, null);
     }
 
-    public ActorRef createActor(ActorContext context, String beanId, RouterConfig routerConfig) {
-        Props props = SpringExtension.SpringExtProvider.get(system).props(beanId).withRouter(routerConfig);
-        return context.actorOf(props);
+    public ActorRef createActor(ActorRefFactory actorRefFactory, String beanId, String actorId, RouterConfig routerConfig) {
+        Props props = SpringExtension.SpringExtProvider.get(system).props(beanId);
+
+        if (routerConfig != null) {
+            props = props.withRouter(routerConfig);
+        } else if (routerProps.containsKey(beanId)) {
+            RouterConfig router = new RoundRobinPool(Integer.parseInt(routerProps.getProperty(beanId)));
+            props = props.withRouter(router);
+        }
+
+        if (actorId != null) {
+            return actorRefFactory.actorOf(props, actorId);
+        }
+        return actorRefFactory.actorOf(props);
+    }
+
+    public void killActor(ActorRef actor) {
+        actor.tell(akka.actor.Kill.getInstance(), ActorRef.noSender());
     }
 
     public void sendMessage(Object message, ActorRef actor) {
@@ -99,11 +109,18 @@ public class AkkaService {
         actor.tell(message, sender);
     }
 
-    public Object sendMessageWithReply(Object message, ActorRef actor, Timeout timeout) {
+    public <T> Future<T> sendMessage(Object message, ActorRef actor, Timeout timeout) {
+        if (actor == null) {
+            throw new ApplicationException("Actor is null");
+        }
+        return (Future<T>) Patterns.ask(actor, message, timeout);
+    }
+
+    public <T> T sendMessageWithReply(Object message, ActorRef actor, Timeout timeout) {
         return sendMessageWithReply(message, actor, 1, 0, timeout);
     }
 
-    public Object sendMessageWithReply(Object message, ActorRef actor, int maxAttempts, long retryInterval, Timeout timeout) {
+    public <T> T sendMessageWithReply(Object message, ActorRef actor, int maxAttempts, long retryInterval, Timeout timeout) {
         if (actor == null) {
             throw new ApplicationException("Actor is null");
         }
@@ -113,8 +130,8 @@ public class AkkaService {
         while (attempts < maxAttempts) {
             attempts ++;
             try {
-                Future future = Patterns.ask(actor, message, timeout);
-                Object result = Await.result(future, timeout.duration());
+                Future<T> future = (Future<T>) Patterns.ask(actor, message, timeout);
+                T result = Await.result(future, timeout.duration());
                 if (result == null) {
                     throw new ApplicationException("Null was returned by actor [" + actor + "]");
                 }

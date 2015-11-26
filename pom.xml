@@ -25,7 +25,7 @@
         <java.version>1.8</java.version>
         <scala.version>2.11.7</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
-        <akka.version>2.4.0-RC2</akka.version>
+        <akka.version>2.4.0</akka.version>
         <spring.version>4.1.6.RELEASE</spring.version>
         <spring-data-jpa.version>1.8.0.RELEASE</spring-data-jpa.version>
         <slf4j.version>1.7.7</slf4j.version>
@@ -38,6 +38,7 @@
         <hibernate.version>4.1.9.Final</hibernate.version>
         <openjpa.version>2.3.0</openjpa.version>
         <kafka.version>0.9.0.0</kafka.version>
+        <metrics.version>3.1.0</metrics.version>
         <cassandra.driver.version>2.1.2</cassandra.driver.version>
         <oracle.driver.version>11.2.0.2.0</oracle.driver.version>
         <hsqldb1.version>2.2.8</hsqldb1.version>
@@ -86,7 +87,7 @@
                             <include>**/*Suite.java</include>
                         </includes>
                         <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                        <argLine>-Xmx256m -Xss4096k -XX:MaxPermSize=64m -XX:ReservedCodeCacheSize=128m</argLine>
+                        <argLine>-Xmx256m -Xss4096k -XX:ReservedCodeCacheSize=128m</argLine>
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
@@ -284,6 +285,13 @@
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
                 <version>${kafka.version}</version>
+            </dependency>
+
+            <!-- Metrics -->
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
             </dependency>
 
             <!-- Database drivers -->
