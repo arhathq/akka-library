@@ -42,20 +42,20 @@ public class AkkaService {
     }
 
     public ActorRef getActor(String beanId) {
-        ActorRef result = parentActors.get(beanId);
-        if (result == null) {
+        ActorRef actor = parentActors.get(beanId);
+        if (actor == null) {
             try {
                 lock.lock();
-                result = parentActors.get(beanId);
-                if (result == null) {
-                    result = createActor(beanId, beanId);
-                    parentActors.put(beanId, result);
+                actor = parentActors.get(beanId);
+                if (actor == null) {
+                    actor = createActor(beanId, beanId);
+                    parentActors.put(beanId, actor);
                 }
             } finally {
                 lock.unlock();
             }
         }
-        return result;
+        return actor;
     }
 
     public ActorRef createActor(String beanId) {
@@ -92,6 +92,22 @@ public class AkkaService {
             return actorRefFactory.actorOf(props, actorId);
         }
         return actorRefFactory.actorOf(props);
+    }
+
+    public void killActor(String beanId) {
+        ActorRef actor = parentActors.get(beanId);
+        if (actor != null) {
+            try {
+                lock.lock();
+                actor = parentActors.get(beanId);
+                if (actor != null) {
+                    killActor(actor);
+                    parentActors.remove(beanId);
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     public void killActor(ActorRef actor) {

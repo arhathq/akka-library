@@ -84,7 +84,7 @@ public class AkkaServiceTestCase {
     public void testGetActorSuccess() {
         final ActorRef actor = akkaService.getActor(TEST_ACTOR);
         assertNotNull(actor);
-        akkaService.killActor(actor);
+        akkaService.killActor(TEST_ACTOR);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class AkkaServiceTestCase {
                 }
             }).run();
         }
-        akkaService.killActor(originTestActor);
+        akkaService.killActor(TEST_ACTOR);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class AkkaServiceTestCase {
             assertTrue(e instanceof InvalidActorNameException);
         }
 
-        akkaService.killActor(testActor);
+        akkaService.killActor(TEST_ACTOR);
         akkaService.killActor(childActor);
         akkaService.killActor(childActor1);
     }
@@ -185,7 +185,7 @@ public class AkkaServiceTestCase {
         final ActorRef actor = akkaService.getActor("statefullActor");
         Integer result = akkaService.sendMessageWithReply("Hello", actor, 5, 1, DEFAULT_TIMEOUT);
         assertTrue(result == 3);
-        akkaService.killActor(actor);
+        akkaService.killActor("statefullActor");
     }
 
     private static class TestActor extends UntypedActor {
