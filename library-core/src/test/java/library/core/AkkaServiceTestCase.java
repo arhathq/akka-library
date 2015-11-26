@@ -3,6 +3,8 @@ package library.core;
 import akka.ConfigurationException;
 import akka.actor.*;
 import akka.pattern.Patterns;
+import akka.routing.RandomPool;
+import akka.routing.RouterConfig;
 import akka.util.Timeout;
 import library.core.akka.ActorSystemFactoryBean;
 import org.junit.After;
@@ -21,7 +23,9 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import library.core.akka.AkkaService;
 
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -36,6 +40,8 @@ public class AkkaServiceTestCase {
     public static final String TEST_ACTOR = "parentActor";
     public static final String ROUTER_ACTOR = "router";
     public static final String GUARDIAN_SUPERVISOR_NAME = "user";
+
+    public static final int ROUTER_SIZE = 3;
 
     private static final Timeout DEFAULT_TIMEOUT = Timeout.apply(1, TimeUnit.SECONDS);
 
@@ -67,7 +73,7 @@ public class AkkaServiceTestCase {
         @Bean
         public Properties routerProps() {
             Properties properties = new Properties();
-            properties.put(ROUTER_ACTOR, "3");
+            properties.put(ROUTER_ACTOR, String.valueOf(ROUTER_SIZE));
             return properties;
         }
     }
@@ -167,8 +173,23 @@ public class AkkaServiceTestCase {
 
     @Test
     public void testCreateActorWithRouter() {
-        final ActorRef testActor = akkaService.createActor(ROUTER_ACTOR);
-        akkaService.killActor(testActor);
+        final ActorRef routerActor = akkaService.createActor(ROUTER_ACTOR);
+        final Set<String> names = new HashSet<>();
+        for (int i = 0; i < 10; i++) {
+            ((Runnable) () -> {
+                try {
+                    String name = akkaService.sendMessageWithReply("getName", routerActor, DEFAULT_TIMEOUT);
+                    System.out.println(name);
+                    names.add(name);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).run();
+        }
+        assertTrue(names.size() == ROUTER_SIZE);
+
+        names.clear();
+        akkaService.killActor(routerActor);
     }
 
     @Test
