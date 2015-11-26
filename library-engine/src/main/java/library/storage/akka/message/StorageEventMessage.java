@@ -8,10 +8,12 @@ import library.core.eaa.Event;
  * @author Alexander Kuleshov
  */
 public class StorageEventMessage extends EventMessage {
+    public final long id;
     public final ActorRef origin;
 
-    public StorageEventMessage(Event event, ActorRef origin) {
+    public StorageEventMessage(long id, Event event, ActorRef origin) {
         super(event);
+        this.id = id;
         this.origin = origin;
     }
 }

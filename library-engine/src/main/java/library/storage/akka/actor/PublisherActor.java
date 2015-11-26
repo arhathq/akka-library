@@ -9,7 +9,6 @@ import library.storage.StorageException;
 import library.storage.akka.message.StorageActivityMessage;
 import library.storage.akka.message.StorageEventMessage;
 import library.storage.eaa.PublisherActivities;
-import library.storage.eaa.PublisherEvents;
 import library.storage.eaa.StorageEventType;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class PublisherActor extends StorageActor {
         } else {
             activity = Activities.createErrorActivity(new StorageException("Unsupported event: " + event.getEventType()));
         }
-        return createActivityMessage(activity, eventMessage.origin);
+        return createActivityMessage(eventMessage.id, activity, eventMessage.origin);
     }
 
     private class GetPublishersAction extends ThrowableAction<GetPublishers> {

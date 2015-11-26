@@ -7,8 +7,10 @@ import library.engine.message.ActivityMessage;
  * @author Alexander Kuleshov
  */
 public class StorageActivityMessage extends ActivityMessage {
+    public final long id;
 
-    public StorageActivityMessage(final Activity activity) {
+    public StorageActivityMessage(long id, final Activity activity) {
         super(activity);
+        this.id = id;
     }
 }

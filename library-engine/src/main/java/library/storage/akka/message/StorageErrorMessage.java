@@ -9,8 +9,8 @@ import library.core.eaa.ThrowableActivity;
 public class StorageErrorMessage extends StorageActivityMessage {
     public final ActorRef destination;
 
-    public StorageErrorMessage(ThrowableActivity activity, ActorRef destination) {
-        super(activity);
+    public StorageErrorMessage(long id, ThrowableActivity activity, ActorRef destination) {
+        super(id, activity);
         this.destination = destination;
     }
 

@@ -4,6 +4,9 @@ package library.core.eaa;
  * @author Alexander Kuleshov
  */
 public class Activities {
+
+    private Activities() {}
+
     public static AckActivity createAckActivity() {
         return new AckActivity();
     }

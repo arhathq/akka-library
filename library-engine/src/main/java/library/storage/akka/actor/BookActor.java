@@ -32,7 +32,7 @@ public class BookActor extends StorageActor {
         } else {
             activity = Activities.createErrorActivity(new StorageException("Unsupported event: " + event.getEventType()));
         }
-        return createActivityMessage(activity, eventMessage.origin);
+        return createActivityMessage(eventMessage.id, activity, eventMessage.origin);
     }
 
     private class GetBooksAction extends ThrowableAction<GetBooks> {

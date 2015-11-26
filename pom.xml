@@ -37,6 +37,7 @@
         <commons.httpclient.version>4.3.2</commons.httpclient.version>
         <hibernate.version>4.1.9.Final</hibernate.version>
         <openjpa.version>2.3.0</openjpa.version>
+        <kafka.version>0.9.0.0</kafka.version>
         <cassandra.driver.version>2.1.2</cassandra.driver.version>
         <oracle.driver.version>11.2.0.2.0</oracle.driver.version>
         <hsqldb1.version>2.2.8</hsqldb1.version>
@@ -276,6 +277,13 @@
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-slf4j_${scala.binary.version}</artifactId>
                 <version>${akka.version}</version>
+            </dependency>
+
+            <!-- Kafka -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
             </dependency>
 
             <!-- Database drivers -->

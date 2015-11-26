@@ -31,11 +31,11 @@ public abstract class StorageActor extends UntypedActor {
 
     protected abstract StorageActivityMessage performActivityByEventDecision(StorageEventMessage eventMessage);
 
-    protected StorageActivityMessage createActivityMessage(Activity activity, ActorRef destination) {
+    protected StorageActivityMessage createActivityMessage(long id, Activity activity, ActorRef destination) {
         if (activity instanceof ThrowableActivity) {
-            return new StorageErrorMessage((ThrowableActivity) activity, destination);
+            return new StorageErrorMessage(id, (ThrowableActivity) activity, destination);
         }
 
-        return new StorageActivityMessage(activity);
+        return new StorageActivityMessage(id, activity);
     }
 }
