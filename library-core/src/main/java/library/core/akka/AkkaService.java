@@ -12,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -169,4 +172,11 @@ public class AkkaService {
         throw new ApplicationException("Error sending message [" + message + "]", error);
     }
 
+    public void schedule(ActorContext context, ActorRef receiver, ActorRef sender, Object message, FiniteDuration initialDelay, FiniteDuration interval) {
+        context.system().scheduler().schedule(initialDelay, interval, receiver, message, context.dispatcher(), sender);
+    }
+
+    public void scheduleOnce(ActorContext context, ActorRef receiver, ActorRef sender, Object message, FiniteDuration delay) {
+        context.system().scheduler().scheduleOnce(delay, receiver, message, context.dispatcher(), sender);
+    }
 }
