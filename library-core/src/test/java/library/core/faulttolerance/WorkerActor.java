@@ -33,20 +33,31 @@ public class WorkerActor extends UntypedActor {
     @Autowired
     private AkkaService akkaService;
 
+    // The sender of the initial Start message will continuously be notified about progress
     private ActorRef listenerActor;
-    private ActorRef serviceActor = akkaService.getActor("serviceActor");
+    private ActorRef serviceActor;
 
     final int totalCount = 51;
 
+    // Stop the ServiceActor child if it throws ServiceUnavailable
+    private static final SupervisorStrategy strategy =
+            new OneForOneStrategy(-1, Duration.Inf(), t -> {
+                if (t instanceof ServiceUnavailable) {
+                    return SupervisorStrategy.stop();
+                } else {
+                    return SupervisorStrategy.escalate();
+                }
+            });
+
     @Override
     public SupervisorStrategy supervisorStrategy() {
-        return new OneForOneStrategy(-1, Duration.Inf(), t -> {
-            if (t instanceof ServiceUnavailable) {
-                return SupervisorStrategy.stop();
-            } else {
-                return SupervisorStrategy.escalate();
-            }
-        });
+        return strategy;
+    }
+
+    @Override
+    public void preStart() throws Exception {
+        serviceActor = akkaService.getActor("serviceActor");
+        super.preStart();
     }
 
     @Override
@@ -55,9 +66,12 @@ public class WorkerActor extends UntypedActor {
         if (message.equals(Start) && listenerActor == null) {
 
             listenerActor = sender();
-            akkaService.schedule(context(), self(), null, Do, Duration.Zero(), Duration.apply(1, TimeUnit.SECONDS));
+            akkaService.schedule(context(), self(), ActorRef.noSender(), Do, Duration.Zero(), Duration.apply(1, TimeUnit.SECONDS));
 
-        } else if (message.equals(WorkerApi.Do)) {
+        } else if (message.equals(Do)) {
+            akkaService.sendMessage(new Increment(1), serviceActor, self());
+            akkaService.sendMessage(new Increment(1), serviceActor, self());
+            akkaService.sendMessage(new Increment(1), serviceActor, self());
 
             pipe(ask(serviceActor, GetCurrentCount, timeout)
                     .mapTo(classTag(CurrentCount.class))

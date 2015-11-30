@@ -27,10 +27,14 @@ public class ActorSystemFactoryBean implements FactoryBean<ActorSystem>, Applica
 
     private ActorSystem system;
 
+    private Config config;
+
     @PostConstruct
     public void init() {
         logger.info("Starting Akka ActorSystem");
-        Config config = ConfigFactory.load(getClass().getClassLoader());
+        if (config == null) {
+            config = ConfigFactory.load(getClass().getClassLoader());
+        }
         system = ActorSystem.create(name, config);
         SpringExtension.SpringExtProvider.get(system).initialize(applicationContext);
     }
@@ -45,6 +49,10 @@ public class ActorSystemFactoryBean implements FactoryBean<ActorSystem>, Applica
     @Required
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     @Override
