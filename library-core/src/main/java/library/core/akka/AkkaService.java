@@ -95,6 +95,11 @@ public class AkkaService {
         return actorRefFactory.actorOf(props);
     }
 
+    public ActorRef createActor(ActorRefFactory actorRefFactory, Class actorClass,  String actorId, Object... args) {
+        Props props = Props.create(actorClass, args);
+        return actorRefFactory.actorOf(props, actorId);
+    }
+
     public void killActor(String beanId) {
         ActorRef actor = parentActors.get(beanId);
         if (actor != null) {
