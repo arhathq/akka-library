@@ -1,5 +1,6 @@
 package library.core.persistence
 
+import akka.actor.Props
 import akka.persistence.PersistentActor
 
 /**
@@ -8,6 +9,10 @@ import akka.persistence.PersistentActor
 object CounterProtocol {
   case object Increment
   case object Incremented
+}
+
+object CounterActor {
+  def props() = Props(new CounterActor)
 }
 
 class CounterActor extends PersistentActor {
@@ -21,6 +26,7 @@ class CounterActor extends PersistentActor {
     case Increment => persist(Incremented) { evt =>
       state += 1
       println("Persisted")
+      sender ! state
     }
   }
 

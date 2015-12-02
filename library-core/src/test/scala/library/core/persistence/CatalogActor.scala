@@ -1,7 +1,13 @@
 package library.core.persistence
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.DurationInt
+
 import akka.actor.Props
+import akka.pattern.ask
+import akka.pattern.pipe
 import akka.persistence.{SnapshotOffer, PersistentActor}
+import akka.util.Timeout
 
 /**
   * @author Alexander Kuleshov
@@ -12,19 +18,18 @@ object CatalogActor {
   sealed trait CatalogCommand
   case class CreateCatalog(id: String) extends CatalogCommand
   case class AddAuthor(firstname: String, lastname: String) extends CatalogCommand
-  case class RemoveAuthor(firstname: String, lastname: String) extends CatalogCommand
+  case class RemoveAuthor(id: Int) extends CatalogCommand
 
   sealed trait CatalogQuery
   case class GetAuthors() extends CatalogQuery
 
   case class CatalogState(id: String, authors: Seq[Author] = Nil) {
     def updated(evt: CatalogEvt): CatalogState = evt match {
-      case AuthorAdded(firstname, lastname) => copy(id, Author(firstname, lastname) +: authors)
-      case AuthorRemoved(firstname, lastname) => copy(id, authors.filterNot(author => author == Author(firstname, lastname)))
+      case AuthorAdded(author) => copy(id, author +: authors)
+      case AuthorRemoved(authorId) => copy(id, authors.filterNot(a => a.id.get == authorId))
       case _ => this
     }
   }
-  case class Author(firstname: String, lastname: String)
 
   def props(id: String) = Props(new CatalogActor(id))
 }
@@ -32,8 +37,11 @@ object CatalogActor {
 class CatalogActor(id: String) extends PersistentActor {
   import CatalogActor._
   import CatalogProtocol._
+  import CounterProtocol._
 
   override def persistenceId: String = "catalog." + id
+
+  val counterActor = context.actorOf(CounterActor.props())
 
   var state: Option[CatalogState] = None
 
@@ -64,15 +72,26 @@ class CatalogActor(id: String) extends PersistentActor {
 
   val receiveCommands: Receive = {
     case AddAuthor(firstname, lastname) => {
-      persist(AuthorAdded(firstname, lastname)) {
-        println(s"Author '$firstname $lastname' added to catalog")
-        evt => updateState(evt)
-        sender ! evt
-      }
+      implicit val timeout = Timeout(5 seconds)
+      implicit val ec = ExecutionContext.fromExecutor(context.dispatcher)
+      val idFuture = counterActor ? Increment
+      idFuture.mapTo[Int].
+        map(id => Author(Some(id), firstname, lastname)).
+        map(author => {
+          val event = AuthorAdded(author)
+          persist(event) {
+            println(s"Author '${author.id.get} ${author.firstname} ${author.lastname}' added to catalog")
+            evt => updateState(evt)
+          }
+          event
+        }).
+      pipeTo(sender)
+
+
     }
-    case RemoveAuthor(firstname, lastname) => {
-      persist(AuthorRemoved(firstname, lastname)) {
-        println(s"Author '$firstname $lastname' removed from catalog")
+    case RemoveAuthor(authorId) => {
+      persist(AuthorRemoved(authorId)) {
+        println(s"Author '$authorId' removed from catalog")
         evt => updateState(evt)
         sender ! evt
       }

@@ -3,11 +3,11 @@ package library.core.persistence
 import akka.persistence.Update
 import com.typesafe.config.ConfigFactory
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.ActorSystem
-import akka.actor.actorRef2Scala
 import akka.pattern.ask
 import akka.util.Timeout
 
@@ -18,10 +18,11 @@ object CatalogApp extends App {
 
   import CatalogActor._
   import CatalogHistoryView._
+  import CatalogProtocol._
 
   val config = ConfigFactory.parseString(
     """
-      |akka.loglevel = "DEBUG"
+      |akka.loglevel = "INFO"
       |
       |akka.persistence.journal.plugin = "akka.persistence.journal.leveldb"
       |akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
@@ -44,20 +45,19 @@ object CatalogApp extends App {
   val createCatalog = CreateCatalog("catalog1")
   val addAutrhor1 = AddAuthor("Mark", "Twain")
   val addAutrhor2 = AddAuthor("Jack", "London")
-  val removeAutrhor1 = RemoveAuthor("Mark", "Twain")
-  val removeAutrhor2 = RemoveAuthor("Jack", "London")
 
   catalogActor ! createCatalog
 
-  catalogActor ! addAutrhor1
-
-  catalogActor ! addAutrhor2
-
-  catalogActor ! removeAutrhor1
-
-  catalogActor ! removeAutrhor2
-
   implicit val timeout = Timeout(5 seconds)
+
+  val authorEvt1 = Await.result(catalogActor ? addAutrhor1, timeout.duration).asInstanceOf[AuthorAdded]
+
+  val authorEvt2 = Await.result(catalogActor ? addAutrhor2, timeout.duration).asInstanceOf[AuthorAdded]
+
+
+  catalogActor ! RemoveAuthor(authorEvt1.author.id.get)
+
+  catalogActor ! RemoveAuthor(authorEvt2.author.id.get)
 
   val authorsFuture = catalogActor ? GetAuthors
 

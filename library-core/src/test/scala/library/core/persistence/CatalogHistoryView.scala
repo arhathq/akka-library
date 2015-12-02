@@ -8,13 +8,12 @@ import akka.persistence.PersistentView
   */
 object CatalogHistoryView {
   import CatalogProtocol._
-  import CatalogActor._
 
   case class CatalogHistoryState(authorsHistory: Seq[Author] = Seq.empty) {
     def updated(evt: CatalogEvt): CatalogHistoryState = evt match {
       case CatalogCreated(_) => this
-      case AuthorAdded(firstname, lastname) => copy(Author(firstname, lastname) +: authorsHistory)
-      case AuthorRemoved(firstname, lastname) => copy(authorsHistory.filterNot(author => author != Author(firstname, lastname)))
+      case AuthorAdded(author) => copy(author +: authorsHistory)
+      case AuthorRemoved(author) => copy(authorsHistory.filterNot(a => a == author))
     }
   }
 
