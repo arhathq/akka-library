@@ -10,9 +10,12 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alexander Kuleshov
@@ -42,8 +45,18 @@ public class ActorSystemFactoryBean implements FactoryBean<ActorSystem>, Applica
     @PreDestroy
     public void close() {
         logger.info("Shutdown Akka ActorSystem");
-        system.shutdown();
-        system.awaitTermination();
+        system.terminate();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Await.ready(system.whenTerminated(), Duration.create(10, TimeUnit.SECONDS));
+                } catch (Exception e) {
+                    logger.warn("Akka wasn't stopped during timeout, forced exit the process anyway");
+                    System.exit(-1);
+                }
+            }
+        }.start();
     }
 
     @Required

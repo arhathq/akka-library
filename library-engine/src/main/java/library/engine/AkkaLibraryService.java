@@ -2,7 +2,6 @@ package library.engine;
 
 import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import akka.util.Timeout;
 import library.core.akka.AkkaService;
 import library.core.eaa.Event;
@@ -19,12 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.SettableListenableFuture;
-import scala.PartialFunction;
-import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -45,12 +42,12 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<List<Book>> getBooks(BookSearchRequest request) {
         final SettableListenableFuture<List<Book>> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
                 List<Book> books = new ArrayList<>();
-                books.addAll((Collection<? extends Book>) message.activity.getPayload());
+                books.addAll(message.activity.getPayload());
                 result.set(books);
             }
         };
@@ -64,11 +61,11 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<Book> getBook(Long id) throws LibraryException {
         final SettableListenableFuture<Book> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
-                result.set((Book) message.activity.getPayload());
+                result.set(message.activity.getPayload());
             }
         };
 
@@ -81,7 +78,7 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<Long> saveBook(Book book) {
         final SettableListenableFuture<Long> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
@@ -98,11 +95,11 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<List<Author>> getAuthors() throws LibraryException {
         final SettableListenableFuture<List<Author>> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
-                result.set((List<Author>) message.activity.getPayload());
+                result.set(message.activity.getPayload());
 
             }
         };
@@ -116,11 +113,11 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<Author> getAuthor(Long id) throws LibraryException {
         final SettableListenableFuture<Author> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
-                result.set((Author) message.activity.getPayload());
+                result.set(message.activity.getPayload());
             }
         };
 
@@ -133,7 +130,7 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<Long> saveAuthor(Author author) throws LibraryException {
         final SettableListenableFuture<Long> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
@@ -150,11 +147,11 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<List<Publisher>> getPublishers() throws LibraryException {
         final SettableListenableFuture<List<Publisher>> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
-                result.set((List<Publisher>) message.activity.getPayload());
+                result.set(message.activity.getPayload());
 
             }
         };
@@ -168,11 +165,11 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<Publisher> getPublisher(Long id) throws LibraryException {
         final SettableListenableFuture<Publisher> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
-                result.set((Publisher) message.activity.getPayload());
+                result.set(message.activity.getPayload());
             }
         };
 
@@ -185,7 +182,7 @@ public class AkkaLibraryService implements LibraryService {
     public ListenableFuture<Long> savePublisher(Publisher publisher) throws LibraryException {
         final SettableListenableFuture<Long> result = new SettableListenableFuture<>();
 
-        PartialFunction<Object, ?> onSuccess = new OnSuccess<Object>() {
+        OnSuccess<Object> onSuccess = new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object o) throws Throwable {
                 ActivityMessage message = (ActivityMessage) o;
@@ -198,15 +195,14 @@ public class AkkaLibraryService implements LibraryService {
         return result;
     }
 
-    private void sendEvent(Event event, PartialFunction<Object, ?> onSuccess, PartialFunction<Throwable, ?> onFailure) throws LibraryException {
-        scala.concurrent.Future<Object> future =
-                Patterns.ask(akkaService.getActor(STORAGE_SUPERVISOR), new EventMessage(event), timeout);
-        ExecutionContext executionContext = akkaService.getSystem().dispatcher();
-        future.onSuccess(onSuccess, executionContext);
-        future.onFailure(onFailure, executionContext);
+    private void sendEvent(Event event, OnSuccess<Object> onSuccess, OnFailure onFailure) throws LibraryException {
+        Future<Object> future =
+                akkaService.sendMessageWithFutureReply(new EventMessage(event), akkaService.getActor(STORAGE_SUPERVISOR), timeout);
+        future.onSuccess(onSuccess, akkaService.getSystem().dispatcher());
+        future.onFailure(onFailure, akkaService.getSystem().dispatcher());
     }
 
-    private PartialFunction<Throwable, ?> onFailure(final SettableListenableFuture<?> result) {
+    private OnFailure onFailure(final SettableListenableFuture<?> result) {
         return new OnFailure() {
             @Override
             public void onFailure(Throwable throwable) throws Throwable {

@@ -23,7 +23,8 @@ public class Activities {
         }
 
         @Override
-        public Object getPayload() {
+        @SuppressWarnings("unchecked")
+        public String getPayload() {
             return "ack";
         }
     }
@@ -39,6 +40,7 @@ public class Activities {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Object getPayload() {
             return null;
         }

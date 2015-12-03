@@ -39,6 +39,9 @@ class CatalogActor(id: String) extends PersistentActor {
   import CatalogProtocol._
   import CounterProtocol._
 
+  implicit val ec = ExecutionContext.fromExecutor(context.dispatcher)
+  implicit val timeout = Timeout(5 seconds)
+
   override def persistenceId: String = "catalog." + id
 
   val counterActor = context.actorOf(CounterActor.props())
@@ -72,8 +75,6 @@ class CatalogActor(id: String) extends PersistentActor {
 
   val receiveCommands: Receive = {
     case AddAuthor(firstname, lastname) => {
-      implicit val timeout = Timeout(5 seconds)
-      implicit val ec = ExecutionContext.fromExecutor(context.dispatcher)
       val idFuture = counterActor ? Increment
       idFuture.mapTo[Int].
         map(id => Author(Some(id), firstname, lastname)).
@@ -86,8 +87,6 @@ class CatalogActor(id: String) extends PersistentActor {
           event
         }).
       pipeTo(sender)
-
-
     }
     case RemoveAuthor(authorId) => {
       persist(AuthorRemoved(authorId)) {

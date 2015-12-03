@@ -53,6 +53,7 @@ public class PublisherActivities {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Object getPayload() {
             return publisher;
         }
@@ -71,6 +72,7 @@ public class PublisherActivities {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Object getPayload() {
             return publisher;
         }

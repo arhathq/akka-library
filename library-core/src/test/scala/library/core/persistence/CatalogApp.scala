@@ -3,9 +3,8 @@ package library.core.persistence
 import akka.persistence.Update
 import com.typesafe.config.ConfigFactory
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
@@ -24,7 +23,7 @@ object CatalogApp extends App {
     """
       |akka.loglevel = "INFO"
       |
-      |akka.persistence.journal.plugin = "akka.persistence.journal.leveldb"
+      |akka.persistence.journal.plugin = "akka.persistence.journal.leveldb1"
       |akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
       |
       |akka.persistence.journal.leveldb.dir = "target/akka-journal"
@@ -39,39 +38,42 @@ object CatalogApp extends App {
     """.stripMargin)
 
   val system = ActorSystem("catalog-es", config)
-  val catalogActor = system.actorOf(CatalogActor.props("catalog1"), "catalogActor1")
-  val catalogHistoryActor = system.actorOf(CatalogHistoryView.props("catalog1"), "catalogHistoryView1")
 
-  val createCatalog = CreateCatalog("catalog1")
-  val addAutrhor1 = AddAuthor("Mark", "Twain")
-  val addAutrhor2 = AddAuthor("Jack", "London")
+  try {
+    val catalogActor = system.actorOf(CatalogActor.props("catalog1"), "catalogActor1")
+    val catalogHistoryActor = system.actorOf(CatalogHistoryView.props("catalog1"), "catalogHistoryView1")
 
-  catalogActor ! createCatalog
+    val createCatalog = CreateCatalog("catalog1")
+    val addAutrhor1 = AddAuthor("Mark", "Twain")
+    val addAutrhor2 = AddAuthor("Jack", "London")
 
-  implicit val timeout = Timeout(5 seconds)
+    catalogActor ! createCatalog
 
-  val authorEvt1 = Await.result(catalogActor ? addAutrhor1, timeout.duration).asInstanceOf[AuthorAdded]
+    implicit val timeout = Timeout(5 seconds)
 
-  val authorEvt2 = Await.result(catalogActor ? addAutrhor2, timeout.duration).asInstanceOf[AuthorAdded]
+    val authorEvt1 = Await.result(catalogActor ? addAutrhor1, timeout.duration).asInstanceOf[AuthorAdded]
+
+    val authorEvt2 = Await.result(catalogActor ? addAutrhor2, timeout.duration).asInstanceOf[AuthorAdded]
 
 
-  catalogActor ! RemoveAuthor(authorEvt1.author.id.get)
+    catalogActor ! RemoveAuthor(authorEvt1.author.id.get)
 
-  catalogActor ! RemoveAuthor(authorEvt2.author.id.get)
+    catalogActor ! RemoveAuthor(authorEvt2.author.id.get)
 
-  val authorsFuture = catalogActor ? GetAuthors
+    val authorsFuture = catalogActor ? GetAuthors
 
-  val authors = Await.result(authorsFuture, timeout.duration)
+    val authors = Await.result(authorsFuture, timeout.duration)
 
-  println(s"Authors: $authors")
+    println(s"Authors: $authors")
 
-  catalogHistoryActor ! Update(await = true)
+    catalogHistoryActor ! Update(await = true)
 
-  val catalogHistoryFuture = catalogHistoryActor ? GetCatalogHistory
+    val catalogHistoryFuture = catalogHistoryActor ? GetCatalogHistory
 
-  val catalogHistory = Await.result(catalogHistoryFuture, timeout.duration)
+    val catalogHistory = Await.result(catalogHistoryFuture, timeout.duration)
 
-  println(s"Catalog History: $catalogHistory")
+    println(s"Catalog History: $catalogHistory")
+  } finally
 
   system.terminate()
 }

@@ -5,6 +5,8 @@ import akka.pattern.Patterns;
 import akka.routing.RoundRobinPool;
 import akka.routing.RouterConfig;
 import akka.util.Timeout;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
 import library.core.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +15,15 @@ import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
+import scala.reflect.ClassTag;
 
 import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static akka.japi.Util.classTag;
 
 /**
  * @author Alexander Kuleshov
@@ -38,6 +43,10 @@ public class AkkaService {
 
     private ReentrantLock lock = new ReentrantLock();
 
+    // Metrcis
+    private final Meter messagesMeter = AkkaMetrics.newMeter(AkkaService.class, "total-messages");
+    private final Counter toplevelActorsCounter = AkkaMetrics.newCounter(AkkaService.class, "toplevel-actors-count");
+
     public ActorSystem getSystem() {
         return system;
     }
@@ -51,6 +60,7 @@ public class AkkaService {
                 if (actor == null) {
                     actor = createActor(beanId, beanId);
                     parentActors.put(beanId, actor);
+                    toplevelActorsCounter.inc();
                 }
             } finally {
                 lock.unlock();
@@ -100,15 +110,16 @@ public class AkkaService {
         return actorRefFactory.actorOf(props, actorId);
     }
 
-    public void killActor(String beanId) {
+    public void stopActor(String beanId) {
         ActorRef actor = parentActors.get(beanId);
         if (actor != null) {
             try {
                 lock.lock();
                 actor = parentActors.get(beanId);
                 if (actor != null) {
-                    killActor(actor);
+                    stopActor(actor);
                     parentActors.remove(beanId);
+                    toplevelActorsCounter.dec();
                 }
             } finally {
                 lock.unlock();
@@ -116,8 +127,8 @@ public class AkkaService {
         }
     }
 
-    public void killActor(ActorRef actor) {
-        actor.tell(akka.actor.Kill.getInstance(), ActorRef.noSender());
+    public void stopActor(ActorRef actor) {
+        actor.tell(PoisonPill.getInstance(), ActorRef.noSender());
     }
 
     public void sendMessage(Object message, ActorRef actor) {
@@ -125,13 +136,15 @@ public class AkkaService {
     }
 
     public void sendMessage(Object message, ActorRef actor, ActorRef sender) {
+        messagesMeter.mark();
         if (actor == null) {
             throw new ApplicationException("Actor is null");
         }
         actor.tell(message, sender);
     }
 
-    public <T> Future<T> sendMessage(Object message, ActorRef actor, Timeout timeout) {
+    public <T> Future<T> sendMessageWithFutureReply(Object message, ActorRef actor, Timeout timeout) {
+        messagesMeter.mark();
         if (actor == null) {
             throw new ApplicationException("Actor is null");
         }

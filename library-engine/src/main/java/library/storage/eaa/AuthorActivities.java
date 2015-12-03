@@ -35,7 +35,7 @@ public class AuthorActivities {
         }
 
         @Override
-        public Object getPayload() {
+        public List<Author> getPayload() {
             return authors;
         }
     }
@@ -53,7 +53,7 @@ public class AuthorActivities {
         }
 
         @Override
-        public Object getPayload() {
+        public Author getPayload() {
             return author;
         }
     }
@@ -71,7 +71,7 @@ public class AuthorActivities {
         }
 
         @Override
-        public Object getPayload() {
+        public Author getPayload() {
             return author;
         }
     }

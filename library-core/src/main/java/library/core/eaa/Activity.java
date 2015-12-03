@@ -13,6 +13,5 @@ public interface Activity {
 
 //    String getEventId();
 
-    Object getPayload();
-
+    <T> T getPayload();
 }

@@ -2,11 +2,7 @@ package library.core;
 
 import akka.ConfigurationException;
 import akka.actor.*;
-import akka.pattern.Patterns;
-import akka.routing.RandomPool;
-import akka.routing.RouterConfig;
 import akka.util.Timeout;
-import library.core.akka.ActorSystemFactoryBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +16,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 import library.core.akka.AkkaService;
 
 import java.util.HashSet;
@@ -90,7 +85,7 @@ public class AkkaServiceTestCase {
     public void testGetActorSuccess() {
         final ActorRef actor = akkaService.getActor(TEST_ACTOR);
         assertNotNull(actor);
-        akkaService.killActor(TEST_ACTOR);
+        akkaService.stopActor(TEST_ACTOR);
     }
 
     @Test
@@ -117,7 +112,7 @@ public class AkkaServiceTestCase {
                 }
             }).run();
         }
-        akkaService.killActor(TEST_ACTOR);
+        akkaService.stopActor(TEST_ACTOR);
     }
 
     @Test
@@ -141,8 +136,8 @@ public class AkkaServiceTestCase {
             assertTrue(e instanceof InvalidActorNameException);
         }
 
-        akkaService.killActor(testActor1);
-        akkaService.killActor(testActor2);
+        akkaService.stopActor(testActor1);
+        akkaService.stopActor(testActor2);
     }
 
     @Test
@@ -166,9 +161,9 @@ public class AkkaServiceTestCase {
             assertTrue(e instanceof InvalidActorNameException);
         }
 
-        akkaService.killActor(TEST_ACTOR);
-        akkaService.killActor(childActor);
-        akkaService.killActor(childActor1);
+        akkaService.stopActor(TEST_ACTOR);
+        akkaService.stopActor(childActor);
+        akkaService.stopActor(childActor1);
     }
 
     @Test
@@ -189,24 +184,24 @@ public class AkkaServiceTestCase {
         assertTrue(names.size() == ROUTER_SIZE);
 
         names.clear();
-        akkaService.killActor(routerActor);
+        akkaService.stopActor(routerActor);
     }
 
     @Test
     public void testSendFutureMessage() throws Exception {
         final ActorRef actor = akkaService.createActor(TEST_ACTOR, TEST_ACTOR);
-        Future<String> future = akkaService.sendMessage("getName", actor, DEFAULT_TIMEOUT);
+        Future<String> future = akkaService.sendMessageWithFutureReply("getName", actor, DEFAULT_TIMEOUT);
         String result = Await.result(future, DEFAULT_TIMEOUT.duration());
         assertEquals(result, TEST_ACTOR);
-        akkaService.killActor(actor);
+        akkaService.stopActor(actor);
     }
 
     @Test
     public void sendRetryTest() {
         final ActorRef actor = akkaService.getActor("statefullActor");
-        Integer result = akkaService.sendMessageWithReply("Hello", actor, 5, 1, DEFAULT_TIMEOUT);
+        Integer result = akkaService.sendMessageWithReply("Hello", actor, 5, 1000, DEFAULT_TIMEOUT);
         assertTrue(result == 3);
-        akkaService.killActor("statefullActor");
+        akkaService.stopActor("statefullActor");
     }
 
     private static class TestActor extends UntypedActor {
